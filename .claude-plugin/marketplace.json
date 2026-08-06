@@ -1,0 +1,16 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "bluewright",
+  "description": "Bluewright — feature-investigation workspaces for Claude Code",
+  "owner": {
+    "name": "Valeriy Maslov",
+    "email": "valeriy.maslov.dev@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "bluewright",
+      "source": "./",
+      "description": "Feature-investigation workspaces: requirements analysis, option comparison, spikes/PoCs, and shareable solution designs"
+    }
+  ]
+}

@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Bluewright — User Manual</title>
+<style>
+  :root {
+    --paper: #FAFAF7;
+    --ink: #1C2733;
+    --ink-soft: #5B6B7C;
+    --accent: #2456A6;
+    --accent-ink: #1E4483;
+    --line: #D9DEE4;
+    --card: #FFFFFF;
+    --code-bg: #F0F2F0;
+    --flag: #8A5A00;
+    --mark: rgba(36, 86, 166, 0.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #10161D;
+      --ink: #DEE5EC;
+      --ink-soft: #8DA0B3;
+      --accent: #6FA3E8;
+      --accent-ink: #8FB8F0;
+      --line: #2A3542;
+      --card: #161E27;
+      --code-bg: #1A232E;
+      --flag: #D9A441;
+      --mark: rgba(111, 163, 232, 0.12);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #10161D;
+    --ink: #DEE5EC;
+    --ink-soft: #8DA0B3;
+    --accent: #6FA3E8;
+    --accent-ink: #8FB8F0;
+    --line: #2A3542;
+    --card: #161E27;
+    --code-bg: #1A232E;
+    --flag: #D9A441;
+    --mark: rgba(111, 163, 232, 0.12);
+  }
+  :root[data-theme="light"] {
+    --paper: #FAFAF7;
+    --ink: #1C2733;
+    --ink-soft: #5B6B7C;
+    --accent: #2456A6;
+    --accent-ink: #1E4483;
+    --line: #D9DEE4;
+    --card: #FFFFFF;
+    --code-bg: #F0F2F0;
+    --flag: #8A5A00;
+    --mark: rgba(36, 86, 166, 0.08);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: Charter, 'Iowan Old Style', Georgia, 'Times New Roman', serif;
+    font-size: 1.0625rem;
+    line-height: 1.65;
+  }
+
+  .sans { font-family: 'Avenir Next', Avenir, Futura, 'Helvetica Neue', Arial, sans-serif; }
+
+  code, pre, .mono {
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  }
+  code {
+    background: var(--code-bg);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 0.08em 0.35em;
+    font-size: 0.86em;
+  }
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 0.9rem 1.1rem;
+    overflow-x: auto;
+    font-size: 0.82rem;
+    line-height: 1.55;
+  }
+  pre code { background: none; border: none; padding: 0; font-size: inherit; }
+
+  a { color: var(--accent-ink); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* ---------- frame ---------- */
+  .wrap {
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: 0 1.25rem 5rem;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 13rem minmax(0, 1fr);
+    gap: 3rem;
+  }
+  @media (max-width: 56rem) {
+    .grid { grid-template-columns: minmax(0, 1fr); }
+    nav.toc { display: none; }
+  }
+
+  /* ---------- masthead ---------- */
+  header.masthead {
+    border-bottom: 2px solid var(--ink);
+    padding: 2.75rem 0 1.5rem;
+    margin-bottom: 2.5rem;
+  }
+  .eyebrow {
+    font-family: 'Avenir Next', Avenir, Futura, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    margin: 0 0 0.6rem;
+  }
+  header.masthead h1 {
+    font-family: 'Avenir Next', Avenir, Futura, 'Helvetica Neue', Arial, sans-serif;
+    font-size: clamp(1.9rem, 4.5vw, 2.6rem);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 0 0 0.5rem;
+    text-wrap: balance;
+  }
+  header.masthead p.dek {
+    max-width: 46rem;
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--ink-soft);
+    text-wrap: balance;
+  }
+
+  /* ---------- toc ---------- */
+  nav.toc {
+    position: sticky;
+    top: 1.5rem;
+    align-self: start;
+    font-family: 'Avenir Next', Avenir, Futura, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 0.82rem;
+    line-height: 1.5;
+  }
+  nav.toc p {
+    margin: 0 0 0.5rem;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  nav.toc ol { list-style: none; margin: 0; padding: 0; }
+  nav.toc li { border-left: 2px solid var(--line); }
+  nav.toc a {
+    display: block;
+    padding: 0.28rem 0 0.28rem 0.75rem;
+    color: var(--ink-soft);
+    text-decoration: none;
+  }
+  nav.toc a:hover { color: var(--accent-ink); border-left: 2px solid var(--accent); margin-left: -2px; }
+
+  /* ---------- sections ---------- */
+  main { min-width: 0; }
+  section { margin-bottom: 3.25rem; }
+  section h2 {
+    font-family: 'Avenir Next', Avenir, Futura, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin: 0 0 1rem;
+    padding-top: 0.75rem;
+    text-wrap: balance;
+  }
+  section h2 .num {
+    color: var(--accent-ink);
+    font-weight: 600;
+    margin-right: 0.5rem;
+    font-variant-numeric: tabular-nums;
+  }
+  section h3 {
+    font-family: 'Avenir Next', Avenir, Futura, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1.02rem;
+    font-weight: 600;
+    margin: 1.75rem 0 0.5rem;
+  }
+  p, ul, ol { max-width: 66ch; }
+  section > p:first-of-type { margin-top: 0; }
+  li { margin-bottom: 0.35rem; }
+  strong { font-weight: 700; }
+
+  /* ---------- phase flow ---------- */
+  .flow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 1.4rem 0 0.6rem;
+    font-family: 'Avenir Next', Avenir, Futura, 'Helvetica Neue', Arial, sans-serif;
+  }
+  .flow .step {
+    border: 1.5px solid var(--accent);
+    color: var(--accent-ink);
+    border-radius: 999px;
+    padding: 0.32rem 0.85rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .flow .step small {
+    display: block;
+    font-weight: 400;
+    font-size: 0.7rem;
+    color: var(--ink-soft);
+    letter-spacing: 0.02em;
+  }
+  .flow .arrow { color: var(--ink-soft); font-size: 0.9rem; }
+  .flow-note {
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+    font-style: italic;
+    max-width: 60ch;
+  }
+
+  /* ---------- command groups ---------- */
+  .cmd-group { margin-top: 1.5rem; }
+  .cmd-group > p.label {
+    font-family: 'Avenir Next', Avenir, Futura, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin: 0 0 0.5rem;
+  }
+  .cmd {
+    display: grid;
+    grid-template-columns: 15rem minmax(0, 1fr);
+    gap: 1.25rem;
+    padding: 0.8rem 0;
+    border-top: 1px solid var(--line);
+  }
+  .cmd:last-child { border-bottom: 1px solid var(--line); }
+  @media (max-width: 40rem) {
+    .cmd { grid-template-columns: minmax(0, 1fr); gap: 0.25rem; }
+  }
+  .cmd .name {
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 0.82rem;
+    color: var(--accent-ink);
+    font-weight: 600;
+    word-break: break-word;
+  }
+  .cmd .what { font-size: 0.95rem; margin: 0; max-width: 58ch; }
+  .cmd .what em.when { color: var(--ink-soft); font-size: 0.88em; }
+
+  /* ---------- file table ---------- */
+  .files { border-top: 1px solid var(--line); }
+  .file {
+    display: grid;
+    grid-template-columns: 13rem minmax(0, 1fr);
+    gap: 1.25rem;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  @media (max-width: 40rem) {
+    .file { grid-template-columns: minmax(0, 1fr); gap: 0.2rem; }
+  }
+  .file .name { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 0.8rem; font-weight: 600; }
+  .file p { margin: 0; font-size: 0.93rem; max-width: 58ch; }
+
+  /* ---------- callouts ---------- */
+  .rule-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 1.1rem 1.3rem;
+    margin: 1rem 0;
+  }
+  .rule-card h4 {
+    font-family: 'Avenir Next', Avenir, Futura, 'Helvetica Neue', Arial, sans-serif;
+    margin: 0 0 0.3rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+  }
+  .rule-card p { margin: 0; font-size: 0.93rem; }
+
+  .tip {
+    border-left: 3px solid var(--accent);
+    background: var(--mark);
+    padding: 0.75rem 1.1rem;
+    border-radius: 0 4px 4px 0;
+    margin: 1.25rem 0;
+    font-size: 0.95rem;
+    max-width: 62ch;
+  }
+  .tip .t {
+    font-family: 'Avenir Next', Avenir, Futura, 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+
+  /* ---------- worked example ---------- */
+  .ex-step {
+    display: grid;
+    grid-template-columns: 4.5rem minmax(0, 1fr);
+    gap: 1.25rem;
+    padding: 0.9rem 0;
+    border-top: 1px solid var(--line);
+  }
+  .ex-step:last-of-type { border-bottom: 1px solid var(--line); }
+  @media (max-width: 40rem) {
+    .ex-step { grid-template-columns: minmax(0, 1fr); gap: 0.3rem; }
+  }
+  .ex-step .day {
+    font-family: 'Avenir Next', Avenir, Futura, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    padding-top: 0.35rem;
+  }
+  .ex-step .body { min-width: 0; }
+  .ex-step .run {
+    display: inline-block;
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--accent-ink);
+    background: var(--mark);
+    border-radius: 4px;
+    padding: 0.2rem 0.55rem;
+    margin: 0 0 0.4rem;
+  }
+  .ex-step p { margin: 0.2rem 0 0; font-size: 0.95rem; max-width: 60ch; }
+
+  .id-badge {
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 0.78em;
+    background: var(--mark);
+    color: var(--accent-ink);
+    border-radius: 3px;
+    padding: 0.05em 0.4em;
+    font-weight: 600;
+  }
+
+  footer {
+    margin-top: 4rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--line);
+    font-family: 'Avenir Next', Avenir, Futura, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow">Claude Code plugin · v1.0.0</p>
+    <h1>Bluewright User Manual</h1>
+    <p class="dek">A workspace for feature investigations — from the first pile of requirements to a solution design your team can act on, with every decision on the record.</p>
+  </header>
+
+  <div class="grid">
+    <nav class="toc" aria-label="Contents">
+      <p>Contents</p>
+      <ol>
+        <li><a href="#what">What it is</a></li>
+        <li><a href="#concepts">How it thinks</a></li>
+        <li><a href="#start">Getting started</a></li>
+        <li><a href="#workflow">The workflow</a></li>
+        <li><a href="#commands">Command reference</a></li>
+        <li><a href="#example">A worked example</a></li>
+        <li><a href="#files">Files explained</a></li>
+        <li><a href="#sync">Staying current</a></li>
+        <li><a href="#rules">Ground rules</a></li>
+      </ol>
+    </nav>
+
+    <main>
+      <section id="what">
+        <h2><span class="num">1</span>What Bluewright is</h2>
+        <p>When you investigate a new feature, the work rarely moves in a straight line. You gather requirements, look at what already exists, weigh approaches, sometimes build a quick proof of concept, share drafts, absorb feedback — and meanwhile other teams keep changing the systems you're designing against.</p>
+        <p>Bluewright gives that work a home. It's a set of <code>/bluewright:*</code> commands for Claude Code that keep one folder per investigation: your inputs, your decisions, your open questions, your to-do list, your experiments, and the polished artifacts you share with others. Nothing lives in Claude's memory or in hidden state — everything is plain markdown and YAML in a git repository you own.</p>
+        <p>The end product of an investigation is a <strong>solution design</strong>: a document (plus diagrams) you can present to your team and cut implementation tickets from, where every claim traces back to a recorded decision, a spike result, or a requirement.</p>
+      </section>
+
+      <section id="concepts">
+        <h2><span class="num">2</span>How it thinks — four ideas</h2>
+
+        <h3>Workspace</h3>
+        <p>A <strong>workspace</strong> is a folder (and git repo) for one product or team. You can have several. It's marked by a <code>workspace.yml</code> file that stores team-wide defaults — Jira project keys, a Confluence space, systems worth watching — so each new investigation starts pre-configured. A <code>KNOWLEDGE.md</code> index at the top links every investigation and collects facts about your systems that outlive any single feature.</p>
+
+        <h3>Investigation</h3>
+        <p>An <strong>investigation</strong> is one feature question, in one subfolder of the workspace. Everything about it lives there:</p>
+        <pre><code>my-workspace/
+  workspace.yml            ← marks the workspace, holds team defaults
+  KNOWLEDGE.md             ← index across all investigations
+  payments-split/          ← one investigation
+    investigation.yml      ← phase, links, watchlist
+    inputs/                ← requirements, samples, anything you collect
+    decisions.md           ← the decision log
+    questions.md           ← open questions
+    todo.md                ← prioritized next steps
+    sync-log.md            ← trail of external-change checks
+    spikes/                ← proof-of-concept experiments
+    outputs/               ← what you share with others</code></pre>
+
+        <h3>The four living files</h3>
+        <p>Feedback and outside changes arrive whenever they want, so four files stay alive through every phase and every command reads and updates them:</p>
+        <ul>
+          <li><strong><code>decisions.md</code></strong> — every choice made, numbered <span class="id-badge">D-001</span>, <span class="id-badge">D-002</span>… Append-only: a wrong decision is superseded by a new entry, never erased. This is your investigation's memory.</li>
+          <li><strong><code>questions.md</code></strong> — everything still unsettled, numbered <span class="id-badge">Q-001</span>… with a note on what each question blocks.</li>
+          <li><strong><code>todo.md</code></strong> — prioritized into <em>Now / Next / Later / Done</em>, numbered <span class="id-badge">T-001</span>…</li>
+          <li><strong>the watchlist</strong> (inside <code>workspace.yml</code> and <code>investigation.yml</code>) — the repos, Jira queries, and Confluence pages whose changes could invalidate your work.</li>
+        </ul>
+
+        <h3>Outputs are the only shareable surface</h3>
+        <p>Only <code>outputs/</code> ever leaves the workspace. It's built to be self-contained: send the folder to a colleague and everything — the brief, the option comparison, the design, rendered diagrams — reads correctly with no other context.</p>
+      </section>
+
+      <section id="start">
+        <h2><span class="num">3</span>Getting started</h2>
+        <h3>Install once</h3>
+        <pre><code>/plugin marketplace add valeriy-maslov/bluewright
+/plugin install bluewright@bluewright</code></pre>
+        <p>Restart Claude Code (or open a new session) so the plugin loads.</p>
+
+        <h3>Create a workspace, then an investigation</h3>
+        <pre><code>/bluewright:init ~/work/my-team        # once per product/team
+cd ~/work/my-team
+/bluewright:new payments-split         # once per feature</code></pre>
+        <p>Both commands ask a few short questions — every answer except the title is optional and can be edited later in the YAML files. <code>new</code> creates the whole folder structure above and writes everything you told it into <code>inputs/00-intake.md</code>, so nothing said at kickoff gets lost.</p>
+
+        <div class="tip"><span class="t">Where to run commands</span>
+        Bluewright finds your workspace by walking up from the folder you're standing in — exactly like git finds a repository. Run commands from inside the workspace (or inside a specific investigation), and they know where they are. There is no global registry to configure.</div>
+
+        <h3>Then: feed it and ask for the brief</h3>
+        <p>Drop whatever you have into <code>inputs/</code> — requirement docs, meeting notes, diagrams, sample payloads, anything. When there's enough to chew on, run <code>/bluewright:brief</code>.</p>
+      </section>
+
+      <section id="workflow">
+        <h2><span class="num">4</span>The workflow</h2>
+        <p>An investigation moves through five phases. The commands map onto them:</p>
+        <div class="flow" role="img" aria-label="Phase flow: Frame, then Options, then Spike, then Share, then Design">
+          <span class="step">Frame<small>/brief</small></span>
+          <span class="arrow">→</span>
+          <span class="step">Options<small>/options</small></span>
+          <span class="arrow">→</span>
+          <span class="step">Spike<small>/spike</small></span>
+          <span class="arrow">→</span>
+          <span class="step">Share<small>/publish</small></span>
+          <span class="arrow">→</span>
+          <span class="step">Design<small>/design</small></span>
+        </div>
+        <p class="flow-note">The arrows are the happy path, not a cage: feedback (<code>/capture</code>) and external changes (<code>/sync</code>) can arrive at any moment and legitimately reopen an earlier phase. Not every investigation needs a spike; skip what the work doesn't call for.</p>
+
+        <h3>A typical run</h3>
+        <ol>
+          <li><strong>Frame.</strong> <code>/brief</code> reads everything in <code>inputs/</code>, surveys the systems on your watchlist in parallel, and writes <code>outputs/brief.md</code>: numbered requirements (<span class="id-badge">FR-1</span>, <span class="id-badge">NFR-1</span>, <span class="id-badge">C-1</span>), a domain glossary, the current state of each system — and turns every gap or contradiction it finds into a question.</li>
+          <li><strong>Options.</strong> <code>/options</code> first agrees the candidate approaches and judging criteria <em>with you</em>, then researches each candidate in parallel and writes <code>outputs/options.md</code>: a scored comparison matrix and a recommendation, recorded as a <em>proposed</em> decision — accepting it stays your call.</li>
+          <li><strong>Spike</strong> (when needed). <code>/spike kafka-ordering</code> scaffolds a time-boxed experiment tied to one open question. It ends in a written verdict — proven, disproven, or honestly inconclusive. The code is throwaway; the verdict is the deliverable.</li>
+          <li><strong>Share.</strong> <code>/publish</code> renders your PlantUML diagrams to PNG, checks that <code>outputs/</code> is truly self-contained, marks anything stale, and refreshes a reading-order README. Send the folder, collect feedback, feed it to <code>/capture</code>.</li>
+          <li><strong>Design.</strong> <code>/design</code> checks you're actually ready (approach accepted? blocking questions answered? spikes concluded?), then synthesizes <code>outputs/design.md</code> from the record — and can draft implementation tickets from it.</li>
+        </ol>
+      </section>
+
+      <section id="commands">
+        <h2><span class="num">5</span>Command reference</h2>
+        <p>Grouped by when you reach for them.</p>
+
+        <div class="cmd-group">
+          <p class="label">Setting up — once each</p>
+          <div class="cmd">
+            <span class="name">/bluewright:init &lt;path&gt;</span>
+            <p class="what">Creates a workspace: <code>workspace.yml</code>, <code>KNOWLEDGE.md</code>, git init. Asks for team defaults; refuses to nest inside another workspace.</p>
+          </div>
+          <div class="cmd">
+            <span class="name">/bluewright:new &lt;slug&gt;</span>
+            <p class="what">Creates one investigation: the folder structure, the four living files, and your kickoff answers preserved in <code>inputs/00-intake.md</code>.</p>
+          </div>
+        </div>
+
+        <div class="cmd-group">
+          <p class="label">Every day</p>
+          <div class="cmd">
+            <span class="name">/bluewright:status</span>
+            <p class="what">One screen: phase, next tasks, open questions (blocking first), latest decisions, sync freshness — plus flags like "outputs older than your newest decision". Read-only, changes nothing. <em class="when">Start your day here.</em></p>
+          </div>
+          <div class="cmd">
+            <span class="name">/bluewright:capture</span>
+            <p class="what">The inbox. Paste feedback, a Slack thread, meeting notes — it saves the raw text to <code>inputs/</code>, then routes each item to a decision, question, or task. If feedback contradicts an accepted decision it raises a question and flags it loudly — it never overrules a decision by itself. <em class="when">Use whenever new information arrives, in any phase.</em></p>
+          </div>
+        </div>
+
+        <div class="cmd-group">
+          <p class="label">Analysis</p>
+          <div class="cmd">
+            <span class="name">/bluewright:brief</span>
+            <p class="what">Requirements analysis: digests <code>inputs/</code>, surveys watched systems, writes <code>outputs/brief.md</code>, seeds questions from the gaps.</p>
+          </div>
+          <div class="cmd">
+            <span class="name">/bluewright:options</span>
+            <p class="what">Option comparison: candidates and criteria agreed with you first, parallel research per candidate, scored matrix in <code>outputs/options.md</code>, recommendation as a proposed decision.</p>
+          </div>
+          <div class="cmd">
+            <span class="name">/bluewright:spike &lt;name&gt;</span>
+            <p class="what">Time-boxed proof of concept answering exactly one question. The spike folder is the one place where installing and running things is allowed. Always ends in a <code>VERDICT.md</code>.</p>
+          </div>
+        </div>
+
+        <div class="cmd-group">
+          <p class="label">Watching the outside world</p>
+          <div class="cmd">
+            <span class="name">/bluewright:sync</span>
+            <p class="what">Checks every watchlist entry for changes since the last run — commits in watched repos, updated Jira issues, edited Confluence pages — and answers the question that matters: <strong>which of my assumptions moved?</strong> Breaking changes raise questions against the affected decisions. Runs unattended, so you can schedule it nightly. <em class="when">Run before big steps, or on a schedule.</em></p>
+          </div>
+        </div>
+
+        <div class="cmd-group">
+          <p class="label">Delivering</p>
+          <div class="cmd">
+            <span class="name">/bluewright:publish</span>
+            <p class="what">Makes <code>outputs/</code> shareable: renders diagrams, verifies nothing links outside the folder, marks stale artifacts honestly, refreshes the README index.</p>
+          </div>
+          <div class="cmd">
+            <span class="name">/bluewright:design</span>
+            <p class="what">The finale: synthesizes <code>outputs/design.md</code> from your decisions, option analysis, and spike verdicts — refusing politely if blocking questions are still open. Offers to draft implementation tickets.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="example">
+        <h2><span class="num">6</span>A worked example, start to finish</h2>
+        <p>A practical lesson with every command in play. The scenario: external subscriber systems must be notified when an order's status changes, within a minute. Your team owns the order service; the API gateway belongs to another team.</p>
+
+        <div class="ex-step">
+          <span class="day">Day 1</span>
+          <div class="body">
+            <span class="run">/bluewright:init ~/work/platform</span>
+            <p>One-time workspace setup (skip if your team already has one). You give it the team name and Jira project key; it creates <code>workspace.yml</code> and <code>KNOWLEDGE.md</code> and git-inits the folder.</p>
+          </div>
+        </div>
+        <div class="ex-step">
+          <span class="day"></span>
+          <div class="body">
+            <span class="run">/bluewright:new order-webhooks</span>
+            <p>You state the goal — <em>"How do we notify subscribers of order-status changes within 60 seconds?"</em> — link the Jira epic, and put two repos on the watchlist: your <code>order-service</code> clone and the other team's <code>api-gateway</code>. Everything you said lands in <code>inputs/00-intake.md</code>. You then drop the integration contract and two meeting notes into <code>inputs/</code>.</p>
+          </div>
+        </div>
+        <div class="ex-step">
+          <span class="day">Day 2</span>
+          <div class="body">
+            <span class="run">/bluewright:brief</span>
+            <p>The inputs are digested and both watched repos surveyed in parallel. Out comes <code>outputs/brief.md</code>: eight functional requirements, three non-functionals (<span class="id-badge">NFR-2</span>: delivery within 60s), two constraints — and two gaps turned into questions: <span class="id-badge">Q-001</span> "What delivery guarantee do subscribers need?" and <span class="id-badge">Q-002</span> "Who owns the subscriber registry?".</p>
+          </div>
+        </div>
+        <div class="ex-step">
+          <span class="day"></span>
+          <div class="body">
+            <span class="run">/bluewright:capture</span>
+            <p>You paste the product manager's Slack reply. The raw text is saved to <code>inputs/</code>, <span class="id-badge">Q-001</span> gets its answer (at-least-once is fine, duplicates acceptable), and the registry question becomes a task to chase.</p>
+          </div>
+        </div>
+        <div class="ex-step">
+          <span class="day">Day 3</span>
+          <div class="body">
+            <span class="run">/bluewright:options</span>
+            <p>You confirm three candidates — a polling feed, webhooks from an outbox + queue, a managed event bus — and the criteria, with <span class="id-badge">NFR-2</span> as a must-have. Three researchers run in parallel; the matrix in <code>outputs/options.md</code> eliminates polling (can't meet 60s at subscriber scale) and proposes <span class="id-badge">D-003</span>: webhooks via outbox. One unknown remains: can <code>order-service</code> emit reliably without a schema change? That becomes a spike task.</p>
+          </div>
+        </div>
+        <div class="ex-step">
+          <span class="day">Day 4</span>
+          <div class="body">
+            <span class="run">/bluewright:spike outbox-emit</span>
+            <p>Scaffolded against that open question with a one-day time-box. Inside <code>spikes/outbox-emit/</code> you build a throwaway harness against a copy of the schema. Verdict: <strong>proven</strong> — no schema change needed. The question is answered with the evidence linked; you accept <span class="id-badge">D-003</span> via <code>/capture</code>.</p>
+          </div>
+        </div>
+        <div class="ex-step">
+          <span class="day">Day 5</span>
+          <div class="body">
+            <span class="run">/bluewright:sync</span>
+            <p>Morning check. The gateway team merged four commits overnight; one renames the event envelope's <code>type</code> field. The impact report says: <em>weakens <span class="id-badge">D-003</span> — the outbox format assumed the old envelope</em>, and raises <span class="id-badge">Q-004</span>. You re-rule the same day, before the design would have shipped the wrong contract.</p>
+          </div>
+        </div>
+        <div class="ex-step">
+          <span class="day">Day 6</span>
+          <div class="body">
+            <span class="run">/bluewright:design</span>
+            <p>Gates pass: approach accepted, no blocking questions, spike concluded. Out comes <code>outputs/design.md</code> — every section tracing to a decision, verdict, or requirement ID — plus a context and a container diagram, and a draft <code>outputs/tickets.md</code> cut from the design's subsections.</p>
+          </div>
+        </div>
+        <div class="ex-step">
+          <span class="day"></span>
+          <div class="body">
+            <span class="run">/bluewright:publish</span>
+            <p>Diagrams render to PNG, links are verified self-contained, <code>outputs/README.md</code> gives the reading order. You send the <code>outputs/</code> folder to the architects. Their feedback next week? Straight into <code>/capture</code> — the loop is built for it.</p>
+          </div>
+        </div>
+        <div class="ex-step">
+          <span class="day">Anytime</span>
+          <div class="body">
+            <span class="run">/bluewright:status</span>
+            <p>Between all of the above: one screen showing the phase, the top of the to-do list, open questions with blockers first, the latest decisions, and whether anything has gone stale.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="files">
+        <h2><span class="num">7</span>The files, explained</h2>
+        <p>You can open and edit any of these by hand — they're plain text, and the formats are documented in the plugin's <code>docs/spec.md</code>. The essentials:</p>
+        <div class="files">
+          <div class="file"><span class="name">decisions.md</span>
+            <p>One entry per decision: context, the choice, its consequences, links to evidence. Append-only — superseding a decision means a new entry pointing back, so the reasoning trail survives. Status moves from <em>proposed</em> to <em>accepted</em> only when you say so.</p></div>
+          <div class="file"><span class="name">questions.md</span>
+            <p>Each question notes who raised it, and what it blocks. Answered questions stay in the file with their answer — they're part of the record.</p></div>
+          <div class="file"><span class="name">todo.md</span>
+            <p>Four sections: Now, Next, Later, Done. Order inside a section is the priority.</p></div>
+          <div class="file"><span class="name">inputs/</span>
+            <p>Anything goes; nothing here is ever shared directly. Captured feedback lands here first, verbatim and dated, before being interpreted.</p></div>
+          <div class="file"><span class="name">spikes/&lt;name&gt;/</span>
+            <p><code>SPIKE.md</code> states the question, success criteria, and time-box up front; <code>VERDICT.md</code> appears only when it concludes. A spike folder without a verdict is, by definition, unfinished business.</p></div>
+          <div class="file"><span class="name">outputs/</span>
+            <p>Fixed names, so every investigation looks alike: <code>brief.md</code>, <code>options.md</code>, <code>design.md</code>, <code>tickets.md</code>, diagrams as <code>.puml</code> with rendered <code>.png</code> beside them, and a <code>README.md</code> reading guide.</p></div>
+          <div class="file"><span class="name">sync-log.md</span>
+            <p>One dated section per <code>/sync</code> run — including the quiet ones. Your morning-coffee review of what moved overnight.</p></div>
+        </div>
+      </section>
+
+      <section id="sync">
+        <h2><span class="num">8</span>Staying current while others ship</h2>
+        <p>The systems you design against don't wait for you. The watchlist plus <code>/sync</code> is Bluewright's answer:</p>
+        <ul>
+          <li>Put anything that could move under your feet on the watchlist — a local clone of another team's repo, a Jira query, a Confluence page. Workspace-level entries apply to every investigation; each investigation can add its own.</li>
+          <li><code>/sync</code> collects what changed since last time, then judges each change against your <em>decisions</em> — not just "4 new commits" but "commit <code>abc123</code> weakens D-004, which assumed the ledger API is synchronous".</li>
+          <li>It never rewrites your decisions. A broken assumption becomes a flagged question; the re-ruling is yours.</li>
+        </ul>
+        <div class="tip"><span class="t">Versions are checked for you</span>
+        Each workspace records the plugin version that created it. A built-in hook checks compatibility on every command — if the plugin is too old for the workspace (or vice versa), you get a clear stop instead of quiet file corruption.</div>
+      </section>
+
+      <section id="rules">
+        <h2><span class="num">9</span>Ground rules the plugin holds itself to</h2>
+        <div class="rule-card"><h4>Your working directory, period</h4>
+          <p>Commands find the workspace by walking up from where you run them. The plugin keeps no global state and never reads or writes outside the workspace — except paths you explicitly put on a watchlist.</p></div>
+        <div class="rule-card"><h4>Nothing lost, nothing invented</h4>
+          <p>Everything you feed in is preserved verbatim before being interpreted. And no command ever records a decision you didn't make — recommendations arrive as <em>proposed</em>, always awaiting your ruling.</p></div>
+        <div class="rule-card"><h4>History is append-only</h4>
+          <p>Decision, question, and task IDs are never reused or renumbered. Documents in <code>outputs/</code> regenerate freely; the record they rest on doesn't move.</p></div>
+        <div class="rule-card"><h4>Honest artifacts</h4>
+          <p>Publishing marks stale documents instead of quietly rewriting them, and a spike that proved nothing says "inconclusive" — with evidence either way.</p></div>
+      </section>
+
+      <footer>
+        Bluewright v1.0.0 · a Claude Code plugin · formats documented in <span class="mono">docs/spec.md</span>
+      </footer>
+    </main>
+  </div>
+</div>
+</body>
+</html>
