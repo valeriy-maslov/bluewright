@@ -372,7 +372,7 @@
 <body>
 <div class="wrap">
   <header class="masthead">
-    <p class="eyebrow">Claude Code plugin · v1.0.0</p>
+    <p class="eyebrow">Claude Code plugin · v2.0.0</p>
     <h1>Bluewright User Manual</h1>
     <p class="dek">A workspace for feature investigations — from the first pile of requirements to a solution design your team can act on, with every decision on the record.</p>
   </header>
@@ -426,10 +426,23 @@
         <p>Feedback and outside changes arrive whenever they want, so four files stay alive through every phase and every command reads and updates them:</p>
         <ul>
           <li><strong><code>decisions.md</code></strong> — every choice made, numbered <span class="id-badge">D-001</span>, <span class="id-badge">D-002</span>… Append-only: a wrong decision is superseded by a new entry, never erased. This is your investigation's memory.</li>
-          <li><strong><code>questions.md</code></strong> — everything still unsettled, numbered <span class="id-badge">Q-001</span>… with a note on what each question blocks.</li>
-          <li><strong><code>todo.md</code></strong> — prioritized into <em>Now / Next / Later / Done</em>, numbered <span class="id-badge">T-001</span>…</li>
+          <li><strong><code>questions.md</code></strong> — everything still unsettled, numbered <span class="id-badge">Q-001</span>… with a note on what each question blocks. Split into <em>Active</em>, <em>Parked</em>, and <em>Closed</em>.</li>
+          <li><strong><code>todo.md</code></strong> — prioritized into <em>Now / Next / Later / Parked / Done</em>, numbered <span class="id-badge">T-001</span>…</li>
           <li><strong>the watchlist</strong> (inside <code>workspace.yml</code> and <code>investigation.yml</code>) — the repos, Jira queries, and Confluence pages whose changes could invalidate your work.</li>
         </ul>
+
+        <h3>Altitude: why most questions are parked</h3>
+        <p>An investigation notices far more than it can act on. Halfway through working out <em>what the problem even is</em>, someone will raise a good point about retry semantics — a real question, and completely unanswerable until you've chosen an approach. Collect enough of those and the list stops being a tool and becomes a wall.</p>
+        <p>So every question and task carries a <strong>level</strong>: the earliest phase at which answering it changes anything.</p>
+        <ul>
+          <li><strong><code>frame</code></strong> — changes the goal, a requirement, or a constraint.</li>
+          <li><strong><code>options</code></strong> — changes which approach wins, or rules one out.</li>
+          <li><strong><code>design</code></strong> — assumes the approach is settled; shapes the design document.</li>
+          <li><strong><code>build</code></strong> — belongs in an implementation ticket.</li>
+        </ul>
+        <p>Items at or above the phase you're in are <strong>active</strong>. Everything below it is <strong>parked</strong> — written down, searchable, and out of your way. When <code>/bluewright:design</code> runs it promotes the parked design-level questions into your active list, because those are exactly the ones the design has to settle; the build-level ones become ticket material. Parking defers, it never discards.</p>
+        <p>Anything with an explicit <em>Blocks:</em> value stays active whatever its level — a real blocker can't be classified away.</p>
+        <p>The same discipline applies on the way in. When a capture restates a question that already exists, it adds a dated line of evidence to that question rather than creating a second one; when several entries turn out to serve one decision, <code>/bluewright:groom</code> offers to roll them up. Merged entries keep their IDs and move to <em>Closed</em> pointing at the survivor, so an old reference always resolves.</p>
 
         <h3>Outputs are the only shareable surface</h3>
         <p>Only <code>outputs/</code> ever leaves the workspace. It's built to be self-contained: send the folder to a colleague and everything — the brief, the option comparison, the design, rendered diagrams — reads correctly with no other context.</p>
@@ -477,7 +490,7 @@ cd ~/work/my-team
           <li><strong>Options.</strong> <code>/options</code> first agrees the candidate approaches and judging criteria <em>with you</em>, then researches each candidate in parallel and writes <code>outputs/options.md</code>: a scored comparison matrix and a recommendation, recorded as a <em>proposed</em> decision — accepting it stays your call.</li>
           <li><strong>Spike</strong> (when needed). <code>/spike kafka-ordering</code> scaffolds a time-boxed experiment tied to one open question. It ends in a written verdict — proven, disproven, or honestly inconclusive. The code is throwaway; the verdict is the deliverable.</li>
           <li><strong>Share.</strong> <code>/publish</code> renders your PlantUML diagrams to PNG, checks that <code>outputs/</code> is truly self-contained, marks anything stale, and refreshes a reading-order README. Send the folder, collect feedback, feed it to <code>/capture</code>.</li>
-          <li><strong>Design.</strong> <code>/design</code> checks you're actually ready (approach accepted? blocking questions answered? spikes concluded?), then synthesizes <code>outputs/design.md</code> from the record — and can draft implementation tickets from it.</li>
+          <li><strong>Design.</strong> <code>/design</code> checks you're actually ready (approach accepted? blocking questions answered? spikes concluded?), then pulls every design-level question out of the parked pile — this is the phase they were waiting for — and synthesizes <code>outputs/design.md</code> from the record. The build-level leftovers become the draft implementation tickets.</li>
         </ol>
       </section>
 
@@ -495,17 +508,25 @@ cd ~/work/my-team
             <span class="name">/bluewright:new &lt;slug&gt;</span>
             <p class="what">Creates one investigation: the folder structure, the four living files, and your kickoff answers preserved in <code>inputs/00-intake.md</code>.</p>
           </div>
+          <div class="cmd">
+            <span class="name">/bluewright:migrate</span>
+            <p class="what">Brings an existing workspace up to the installed plugin's format: converts every investigation, grooms the backlog, and records the new version in <code>workspace.yml</code>. Wants a clean git tree and never commits, so <code>git diff</code> is your review. <em class="when">Only after a major upgrade — the version check tells you when.</em></p>
+          </div>
         </div>
 
         <div class="cmd-group">
           <p class="label">Every day</p>
           <div class="cmd">
             <span class="name">/bluewright:status</span>
-            <p class="what">One screen: phase, next tasks, open questions (blocking first), latest decisions, sync freshness — plus flags like "outputs older than your newest decision". Read-only, changes nothing. <em class="when">Start your day here.</em></p>
+            <p class="what">One screen: phase, next tasks, active questions (blocking first), a one-line count of what's parked, latest decisions, sync freshness — plus flags like "outputs older than your newest decision". Read-only, changes nothing. <em class="when">Start your day here.</em></p>
           </div>
           <div class="cmd">
             <span class="name">/bluewright:capture</span>
-            <p class="what">The inbox. Paste feedback, a Slack thread, meeting notes — it saves the raw text to <code>inputs/</code>, then routes each item to a decision, question, or task. If feedback contradicts an accepted decision it raises a question and flags it loudly — it never overrules a decision by itself. <em class="when">Use whenever new information arrives, in any phase.</em></p>
+            <p class="what">The inbox. Paste feedback, a Slack thread, meeting notes — it saves the raw text to <code>inputs/</code>, then routes each item to a decision, question, or task. Restating something already on the list adds evidence to it instead of creating a duplicate, and anything below your current altitude is parked rather than put in front of you. If feedback contradicts an accepted decision it raises a question and flags it loudly — it never overrules a decision by itself. <em class="when">Use whenever new information arrives, in any phase.</em></p>
+          </div>
+          <div class="cmd">
+            <span class="name">/bluewright:groom</span>
+            <p class="what">Consolidates the lists when they've drifted: re-levels every question and task against the current phase, then proposes merges in small batches for you to confirm. Nothing is deleted and no ID is reused. <em class="when">When the active list has stopped being something you can act on.</em></p>
           </div>
         </div>
 
@@ -541,7 +562,7 @@ cd ~/work/my-team
           </div>
           <div class="cmd">
             <span class="name">/bluewright:design</span>
-            <p class="what">The finale: synthesizes <code>outputs/design.md</code> from your decisions, option analysis, and spike verdicts — refusing politely if blocking questions are still open. Offers to draft implementation tickets.</p>
+            <p class="what">The finale: promotes the parked design-level questions, then synthesizes <code>outputs/design.md</code> from your decisions, option analysis, and spike verdicts — refusing politely if blocking questions are still open. Offers to draft implementation tickets, drawing on the build-level detail the investigation set aside along the way.</p>
           </div>
         </div>
       </section>
@@ -617,7 +638,7 @@ cd ~/work/my-team
           <span class="day">Anytime</span>
           <div class="body">
             <span class="run">/bluewright:status</span>
-            <p>Between all of the above: one screen showing the phase, the top of the to-do list, open questions with blockers first, the latest decisions, and whether anything has gone stale.</p>
+            <p>Between all of the above: one screen showing the phase, the top of the to-do list, active questions with blockers first, a count of what's parked and when it comes back, the latest decisions, and whether anything has gone stale.</p>
           </div>
         </div>
       </section>
@@ -629,9 +650,9 @@ cd ~/work/my-team
           <div class="file"><span class="name">decisions.md</span>
             <p>One entry per decision: context, the choice, its consequences, links to evidence. Append-only — superseding a decision means a new entry pointing back, so the reasoning trail survives. Status moves from <em>proposed</em> to <em>accepted</em> only when you say so.</p></div>
           <div class="file"><span class="name">questions.md</span>
-            <p>Each question notes who raised it, and what it blocks. Answered questions stay in the file with their answer — they're part of the record.</p></div>
+            <p>Three sections: <em>Active</em>, <em>Parked</em>, <em>Closed</em>. Each question notes its level, who raised it, what it blocks, and the accumulated evidence behind it. Nothing leaves the file — answered, dropped, and merged questions stay with their outcome, so an old <span class="id-badge">Q-021</span> reference always resolves.</p></div>
           <div class="file"><span class="name">todo.md</span>
-            <p>Four sections: Now, Next, Later, Done. Order inside a section is the priority.</p></div>
+            <p>Five sections: Now, Next, Later, Parked, Done. Order inside a section is the priority; <em>Parked</em> isn't a priority at all, it's an altitude.</p></div>
           <div class="file"><span class="name">inputs/</span>
             <p>Anything goes; nothing here is ever shared directly. Captured feedback lands here first, verbatim and dated, before being interpreted.</p></div>
           <div class="file"><span class="name">spikes/&lt;name&gt;/</span>
@@ -668,7 +689,7 @@ cd ~/work/my-team
       </section>
 
       <footer>
-        Bluewright v1.0.0 · a Claude Code plugin · formats documented in <span class="mono">docs/spec.md</span>
+        Bluewright v2.0.0 · a Claude Code plugin · formats documented in <span class="mono">docs/spec.md</span>
       </footer>
     </main>
   </div>

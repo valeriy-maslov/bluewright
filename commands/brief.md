@@ -9,7 +9,9 @@ whatever is in `inputs/` plus the reality of the watched systems into
 `outputs/brief.md` — the foundation `/options` and `/design` build on.
 
 First read the spec at `${CLAUDE_PLUGIN_ROOT}/docs/spec.md` and follow its
-formats and resolution rules exactly.
+formats and resolution rules exactly. Then load the `bluewright:item-triage`
+skill — `/brief` seeds the questions the whole investigation starts from, and
+seeding them one-per-finding is what makes the list unusable by week two.
 
 Argument: `$ARGUMENTS`
 
@@ -40,18 +42,30 @@ Argument: `$ARGUMENTS`
      Q-IDs created in step 5.
    The brief must be self-contained and shareable: a colleague who has seen
    nothing else must be able to read it cold.
-5. **Ripple.**
-   - Every conflict/ambiguity/gap from the analyst → `questions.md`
-     (next `Q-###`, `Raised: (source: /brief)`, with what it Blocks).
-   - `changeSignals` from surveyors worth watching → `todo.md` or a note in
-     the watchlist entry's `note` field.
+5. **Ripple** — per the item-triage skill, not one-to-one.
+   - **Cluster** the analyst's conflicts, ambiguities, and gaps by the
+     underlying decision each one bears on: one `Q-###` per decision, with
+     the individual findings as its evidence lines. Three findings about the
+     same unsettled thing are one question, not three.
+   - Level each question and place it by the altitude gate. `/brief` runs in
+     `phase: frame`, so only `frame`-level questions land in `## Active` —
+     `options`, `design`, and `build`-level findings are real and are kept,
+     in `## Parked`, until their phase arrives.
+   - `changeSignals` from surveyors worth watching → `todo.md` at
+     `level: options` (parked during `frame`) or a note in the watchlist
+     entry's `note` field.
    - Tick the bootstrap TODOs this completes; add follow-ups.
    - Set `phase: frame` → leave as is; `/brief` completing is the exit
      criterion the user confirms, not an automatic transition.
+   - The brief's "open points" section references the active Q-IDs, and
+     summarises the parked ones by count and level — a reader of
+     `outputs/brief.md` should see that deeper unknowns were noticed, without
+     being handed all of them.
 6. **Report** one screen: where the brief is, requirement counts, the
-   surveyed systems and their relevance, new Q-IDs (blocking ones first),
-   and the suggested next step — usually answering blockers via
-   `/bluewright:capture`, then `/bluewright:options`.
+   surveyed systems and their relevance, the new active Q-IDs (blocking ones
+   first), parked questions as a count by level, and the suggested next step
+   — usually answering blockers via `/bluewright:capture`, then
+   `/bluewright:options`.
 
 ## Rules
 

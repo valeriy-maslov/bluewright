@@ -29,7 +29,7 @@ commands read and write the same shapes.
     investigation.yml           # state, links, watchlist
     inputs/                     # requirements, samples, diagrams, pasted material
     decisions.md                # append-only decision log
-    questions.md                # open questions
+    questions.md                # questions: active, parked, closed
     todo.md                     # prioritized TODO
     sync-log.md                 # append-only trail of /sync runs (written only by /sync)
     spikes/<spike-name>/        # each PoC: code + SPIKE.md (goal) + VERDICT.md (outcome)
@@ -120,37 +120,122 @@ Newest entry at the BOTTOM.
 **Links:** related Q-IDs, spike verdicts, inputs, external refs.
 ```
 
+## Altitude
+
+Every question and TODO carries a `Level` — the phase at which the item is
+actually decidable. Altitude is what keeps an investigation's working list at
+the height the investigation is working at: deep detail raised early is kept,
+but out of the way until it matters.
+
+| Level     | The item is at this level when answering it…                       |
+|-----------|--------------------------------------------------------------------|
+| `frame`   | changes the goal, a non-goal, a requirement (FR/NFR/C), a constraint |
+| `options` | changes which approach wins, or eliminates a candidate              |
+| `design`  | assumes the approach is fixed, and shapes `outputs/design.md`       |
+| `build`   | belongs in an implementation ticket, not in this investigation      |
+
+The ladder runs `frame` (highest) → `options` → `design` → `build` (lowest).
+
+**The altitude gate.** An item is *active* when its level is at or above the
+investigation's current altitude; otherwise it is *parked*.
+
+| `investigation.yml` phase   | Active levels          |
+|-----------------------------|------------------------|
+| `frame`                     | frame                  |
+| `options`, `spike`, `share` | frame, options         |
+| `design`                    | frame, options, design |
+| `done`                      | none                   |
+
+Two overrides:
+
+- an item with a `Blocks:` value is **always active**, whatever its level —
+  something explicitly blocking cannot be deferred by a classification;
+- moving to a later phase activates the parked items that phase reaches.
+  Parking defers, it never discards: `/bluewright:design` promotes the
+  `design`-level items when it runs, and drafts tickets from the `build`-level
+  ones.
+
+Assigning a level, deduplicating against existing items, and rolling several
+items up into one are judgment calls — the `bluewright:item-triage` skill
+holds the procedure, and every command that writes these files loads it.
+
 ## questions.md
 
-IDs `Q-001, ...`, sequential, never reused. Resolved questions stay in the
-file with their answer — they are part of the record.
+IDs `Q-001, ...`, sequential, never reused. Nothing is ever deleted: answered,
+dropped, and merged questions stay in the file — they are part of the record.
+
+Three fixed sections, in this order. An entry lives in exactly one of them,
+and moves between them as its status changes.
+
+- `## Active` — `Status: open`, at or above the current altitude (or blocking);
+- `## Parked` — `Status: parked`, below the current altitude;
+- `## Closed` — `Status: answered | dropped | merged`.
 
 ```markdown
 # Questions — <title>
 
-## Q-001 — <the question, phrased so it can be answered>
-- Status: open                  # open | answered | dropped
-- Raised: 2026-08-06 (source: /brief gap analysis)
+## Active
+
+### Q-007 — <the question, phrased so it can be answered>
+- Status: open                  # open | parked | answered | dropped | merged
+- Level: options                # frame | options | design | build
+- Raised: 2026-08-05 (source: /brief gap analysis)
 - Blocks: D-004, design         # what cannot proceed until answered
 
+**Evidence:**
+- 2026-08-05 (/brief gap analysis): no input covers the failure path
+- 2026-08-07 (/capture, standup, Ann): timeouts seen in staging
+
 **Answer:** (filled when answered, with date and source)
+
+## Parked
+
+### Q-014 — <the question>  (Level: design)
+- Status: parked
+- Level: design
+- Raised: 2026-08-07 (source: /capture)
+
+## Closed
+
+### Q-001 — <the question>
+- Status: answered
+- Level: frame
+
+**Answer:** 2026-08-06 (source: D-002) — <the answer>
+
+### Q-021 — <the question>
+- Status: merged
+- Level: design
+- Merged into: Q-014
 ```
+
+**Evidence** accumulates: when new material restates a question that already
+exists, the existing entry gains a dated evidence line — it never gains a
+twin. See the `bluewright:item-triage` skill.
 
 ## todo.md
 
 Priority is expressed by section, order within a section matters (top = next).
-IDs `T-001, ...` sequential. Finished items move to Done with a date.
+IDs `T-001, ...` sequential, never reused. Each item carries its level.
+
+- `Now` / `Next` / `Later` — active, at or above the current altitude.
+  `Later` means *right altitude, not urgent*;
+- `Parked` — below the current altitude. Not a priority, a level;
+- `Done` — finished, with a date.
 
 ```markdown
 # TODO — <title>
 
 ## Now
-- [ ] T-003 — confirm ledger API ownership with team X  (phase: frame)
+- [ ] T-003 — confirm ledger API ownership with team X  (level: frame)
 
 ## Next
-- [ ] T-004 — spike: kafka message ordering  (phase: spike)
+- [ ] T-004 — spike: kafka message ordering  (level: options)
 
 ## Later
+
+## Parked
+- [ ] T-019 — decide connection-pool sizing  (level: design)
 
 ## Done
 - [x] T-001 — collect current requirements docs  (2026-08-06)
@@ -221,20 +306,21 @@ not a document.
 last migrated the workspace. Commands read it when resolving the workspace:
 
 - same version as the installed plugin → proceed;
-- older version → proceed if formats are compatible, but mention that a
-  future `/bluewright:migrate` can bring the workspace up to date; if the
-  spec has had a breaking change since that version, stop and say migration
-  is required before continuing;
+- older version → proceed if formats are compatible, but mention that
+  `/bluewright:migrate` can bring the workspace up to date; if the spec has
+  had a breaking change since that version, stop and say migration is
+  required before continuing;
 - newer version → stop; the installed plugin is older than the workspace —
   update the plugin.
 
-Only `/bluewright:init` (and a future migrate command) may write this field.
+Only `/bluewright:init` and `/bluewright:migrate` may write this field.
 
 Enforcement is deterministic: the plugin's `UserPromptSubmit` hook
 (`hooks/check-workspace-version.py`) runs on every `/bluewright:*` prompt
-(except `init`), compares `bluewright` with the installed plugin version, and
-blocks the command on incompatibility. Commands therefore do not need to
-re-check versions themselves.
+(except `init` and `migrate`, which must stay reachable in a workspace that is
+blocked precisely because it needs migrating), compares `bluewright` with the
+installed plugin version, and blocks the command on incompatibility. Commands
+therefore do not need to re-check versions themselves.
 
 ## Conventions
 

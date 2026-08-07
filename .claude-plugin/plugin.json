@@ -1,6 +1,6 @@
 {
   "name": "bluewright",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Feature-investigation workspaces: requirements analysis, option comparison, spikes/PoCs, and shareable solution designs",
   "author": {
     "name": "Valeriy Maslov",

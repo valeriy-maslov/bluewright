@@ -30,11 +30,27 @@ dispatched by `/bluewright:brief` with the path of one investigation folder.
 3. Hunt for what's wrong or missing, relative to the goal:
    - ambiguities (two readings possible), conflicts (two inputs disagree —
      cite both), and gaps (things the goal needs that no input covers).
-4. Assign stable IDs: `FR-1..`, `NFR-1..`, `C-1..` — later stages (options
+   **Group findings by the decision they affect: one entry per decision, not
+   one per sentence.** Three ways of noticing that ownership of the ledger
+   API is unclear are one gap with three sources, and returning them as
+   three entries turns into three questions the user has to answer once.
+4. Give every conflict, ambiguity, and gap a `level` — the earliest phase at
+   which answering it changes anything:
+   - `frame` — changes the goal, a requirement, or a constraint;
+   - `options` — changes which approach wins, or eliminates a candidate;
+   - `design` — assumes the approach is fixed; shapes the design document;
+   - `build` — belongs in an implementation ticket.
+   When torn between two levels, choose the lower one. The orchestrator uses
+   this to decide what the user sees now and what waits for its phase; an
+   inflated level is an interruption, a modest one is only a delay.
+5. Assign stable IDs: `FR-1..`, `NFR-1..`, `C-1..` — later stages (options
    scoring, design) reference these.
 
 ## Hard rules
 - Cite the source file for every requirement (`inputs/<file>` + section/line).
+- Volume is not thoroughness. A digest with forty gaps is less useful than one
+  with eight, each carrying the four findings that make it up — grouping is
+  part of the analysis, not a summary of it.
 - Return ONLY the digest below (target ≤ ~800 tokens). No file bodies.
 
 ## Return — RequirementsDigest (markdown)
@@ -44,8 +60,10 @@ functional:      [{ id: FR-n, statement, source, inferred?: yes }]
 nonFunctional:   [{ id: NFR-n, statement, metric?, source, inferred?: yes }]
 constraints:     [{ id: C-n, statement, source }]
 domainTerms:     [{ term, meaning, source }]
-conflicts:       [{ between: [source A, source B], issue }]
-ambiguities:     [{ about, readings: [A, B], suggestedQuestion }]
-gaps:            [{ missing, whyItMatters, suggestedQuestion }]
+conflicts:       [{ between: [source A, source B], issue, level }]
+ambiguities:     [{ about, readings: [A, B], suggestedQuestion, level,
+                    sources: [where each reading came from] }]
+gaps:            [{ missing, whyItMatters, suggestedQuestion, level,
+                    sources: [findings this gap groups] }]
 unreadable:      [files skipped and why]
 ```

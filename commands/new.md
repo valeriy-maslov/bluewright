@@ -43,9 +43,12 @@ Requested slug: `$ARGUMENTS`
    - `inputs/`, `spikes/`, `outputs/` folders (add `.gitkeep` to the empty
      ones).
 5. **Seed `todo.md`** with the obvious first tasks in **Now**, e.g.
-   `T-001 — collect requirements and materials into inputs/` and
-   `T-002 — run /bluewright:brief`. If the interview surfaced an unknown
-   worth deciding, add it to `questions.md` as `Q-001` instead of losing it.
+   `T-001 — collect requirements and materials into inputs/  (level: frame)`
+   and `T-002 — run /bluewright:brief  (level: frame)`. If the interview
+   surfaced an unknown worth deciding, add it to `questions.md` as `Q-001`
+   instead of losing it — with its `Level:`, and in `## Parked` if it sits
+   below `frame` (a new investigation is at the top of the ladder, so most
+   opening unknowns that aren't about scope belong there).
 6. **Index.** Append the investigation's line to the workspace `KNOWLEDGE.md`
    under **Investigations**, per the spec format.
 7. **Report.** Show the created tree and the immediate next steps: drop
