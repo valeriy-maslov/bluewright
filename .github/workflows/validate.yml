@@ -1,0 +1,58 @@
+name: Validate
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: validate-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: claude plugin validate --strict
+    runs-on: ubuntu-latest
+    env:
+      # Pin to a release ("2.1.224") or a channel ("latest", "stable").
+      CLAUDE_CODE_VERSION: latest
+      DISABLE_AUTOUPDATER: "1"
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install Claude Code
+        run: |
+          curl -fsSL https://claude.ai/install.sh | bash -s "$CLAUDE_CODE_VERSION"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Show version
+        run: claude --version
+
+      - name: Validate manifests
+        run: |
+          status=0
+          count=0
+
+          while IFS= read -r manifest; do
+            count=$((count + 1))
+            echo "::group::$manifest"
+            claude plugin validate "$manifest" --strict || status=1
+            echo "::endgroup::"
+          done < <(
+            find . -path ./node_modules -prune -o \
+                   -path '*/.claude-plugin/marketplace.json' -print -o \
+                   -path '*/.claude-plugin/plugin.json' -print \
+              | sort
+          )
+
+          if [ "$count" -eq 0 ]; then
+            echo "::error::No .claude-plugin manifests found — nothing was validated."
+            exit 1
+          fi
+
+          exit $status

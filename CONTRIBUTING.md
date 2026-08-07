@@ -78,8 +78,17 @@ There is no automated test suite; validation is a manifest check plus a real run
 1. **Validate the manifests:**
 
    ```bash
-   claude plugin validate . --strict
+   claude plugin validate .claude-plugin/marketplace.json --strict
+   claude plugin validate .claude-plugin/plugin.json --strict
    ```
+
+   Both paths are needed. `claude plugin validate .` resolves to the marketplace manifest
+   only and silently skips everything else. Pointing at `plugin.json` is what walks
+   `agents/`, `commands/`, `skills/`, and `hooks/hooks.json`.
+
+   `--strict` turns warnings — unknown manifest fields, missing frontmatter descriptions —
+   into a non-zero exit. CI runs exactly these two commands on every push and pull request
+   (`.github/workflows/validate.yml`), so a warning you ignore locally fails the build.
 
 2. **Exercise the hook** if you touched `hooks/`:
 

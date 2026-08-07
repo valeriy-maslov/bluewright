@@ -1,5 +1,7 @@
 # Bluewright
 
+[![Validate](https://github.com/valeriy-maslov/bluewright/actions/workflows/validate.yml/badge.svg?branch=master)](https://github.com/valeriy-maslov/bluewright/actions/workflows/validate.yml)
+
 A [Claude Code](https://claude.com/claude-code) plugin for **feature investigations** — the
 work that happens *before* implementation: figuring out what's actually being asked, what
 already exists, which approaches are viable, which one wins, and why.
