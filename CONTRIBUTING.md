@@ -15,6 +15,7 @@ workspace, without stepping outside its boundary?
   small surface, and a new `/bluewright:*` command is a commitment. Describe the workflow
   gap before writing the prompt.
 - **Fixes to wording, examples, or docs** — just send the pull request.
+- **Security problems** — not in an issue, please. Follow [`SECURITY.md`](SECURITY.md).
 
 ## Local development
 

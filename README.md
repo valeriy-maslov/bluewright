@@ -125,6 +125,13 @@ claude plugin validate . --strict
 Reinstalling is version-gated — bump `version` in `.claude-plugin/plugin.json` before
 `/plugin update bluewright@bluewright` picks up your changes.
 
+## Security
+
+Found something that looks like a security problem? Please report it privately — through
+[GitHub](https://github.com/valeriy-maslov/bluewright/security/advisories/new) or by email —
+rather than opening an issue. [`SECURITY.md`](SECURITY.md) covers what counts, what is
+deliberate (`/bluewright:spike` runs code on purpose), and what to expect after you report.
+
 ## License
 
 [MIT](LICENSE) © Valeriy Maslov

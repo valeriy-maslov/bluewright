@@ -17,6 +17,10 @@ explicitly when a release changes anything on disk.
   and publishes a GitHub release with that section as the notes
   (`.github/workflows/release.yml`). Repository tooling only — nothing changes for
   installed plugins or existing workspaces.
+- Security policy ([`SECURITY.md`](SECURITY.md)) with private vulnerability reporting
+  enabled on the repository: how to report, what counts as a vulnerability in a plugin made
+  of prompts, and what is deliberate. Documentation only — nothing changes for installed
+  plugins or existing workspaces.
 
 ## [1.0.0] — 2026-08-06
 
