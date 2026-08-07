@@ -125,6 +125,14 @@ claude plugin validate . --strict
 Reinstalling is version-gated — bump `version` in `.claude-plugin/plugin.json` before
 `/plugin update bluewright@bluewright` picks up your changes.
 
+## Data handling
+
+Bluewright collects nothing: no backend, no telemetry, no network calls of its own. Your
+investigations are plain files in your own git repository, and the version hook reads each
+prompt only to test whether it starts with `/bluewright:` — it stores and sends nothing.
+[`PRIVACY.md`](PRIVACY.md) walks through every moving part, including the two components
+that can reach the internet and when they do.
+
 ## Security
 
 Found something that looks like a security problem? Please report it privately — through

@@ -16,6 +16,8 @@ workspace, without stepping outside its boundary?
   gap before writing the prompt.
 - **Fixes to wording, examples, or docs** — just send the pull request.
 - **Security problems** — not in an issue, please. Follow [`SECURITY.md`](SECURITY.md).
+- **Anything that collects, stores, or transmits data** — it won't be merged. See
+  [`PRIVACY.md`](PRIVACY.md) for the promises a change has to keep.
 
 ## Local development
 

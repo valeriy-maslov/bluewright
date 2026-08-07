@@ -17,6 +17,10 @@ explicitly when a release changes anything on disk.
   and publishes a GitHub release with that section as the notes
   (`.github/workflows/release.yml`). Repository tooling only — nothing changes for
   installed plugins or existing workspaces.
+- Privacy and data-handling statement ([`PRIVACY.md`](PRIVACY.md)): what the plugin
+  collects (nothing), what the `UserPromptSubmit` hook does with each prompt, and which
+  components can reach the network. Documentation only — nothing changes for installed
+  plugins or existing workspaces.
 - Security policy ([`SECURITY.md`](SECURITY.md)) with private vulnerability reporting
   enabled on the repository: how to report, what counts as a vulnerability in a plugin made
   of prompts, and what is deliberate. Documentation only — nothing changes for installed
