@@ -1,0 +1,147 @@
+name: Release
+
+# Publishes a GitHub release when a new version appears at the top of CHANGELOG.md.
+# The changelog is the trigger and the source of the release notes; the tag is vX.Y.Z.
+# Re-running on an already-released version is a no-op, so unrelated changelog edits
+# (a typo fix, a line added under Unreleased) are safe.
+
+on:
+  push:
+    branches: [master]
+    paths: ["CHANGELOG.md"]
+  workflow_dispatch:
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Publish GitHub release
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Read the topmost changelog entry
+        id: entry
+        run: |
+          python3 <<'PY'
+          import json
+          import os
+          import re
+          import sys
+
+          CHANGELOG = "CHANGELOG.md"
+          MANIFEST = ".claude-plugin/plugin.json"
+
+          HEADING = re.compile(r"^##\s+\[([^\]]+)\]")
+          LINK_DEF = re.compile(r"^\[[^\]]+\]:\s")
+          SEMVER = re.compile(r"^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)*$")
+
+
+          def fail(message):
+              print(f"::error file={CHANGELOG}::{message}")
+              sys.exit(1)
+
+
+          with open(CHANGELOG, encoding="utf-8") as fh:
+              lines = fh.read().splitlines()
+
+          # Collect the released sections in file order, skipping [Unreleased] and
+          # stopping each body at the next heading or the link definitions at the end.
+          sections = []
+          current = None
+          for line in lines:
+              heading = HEADING.match(line)
+              if heading:
+                  name = heading.group(1).strip()
+                  current = None if name.lower() == "unreleased" else (name, [])
+                  if current:
+                      sections.append(current)
+                  continue
+              if LINK_DEF.match(line):
+                  current = None
+                  continue
+              if current:
+                  current[1].append(line)
+
+          if not sections:
+              fail("No released version section found — expected a heading like '## [1.2.3] — 2026-01-31'.")
+
+          version, body = sections[0]
+          previous = sections[1][0] if len(sections) > 1 else None
+
+          if not SEMVER.match(version):
+              fail(f"Changelog heading '[{version}]' is not a semantic version.")
+
+          with open(MANIFEST, encoding="utf-8") as fh:
+              manifest_version = json.load(fh).get("version")
+
+          if manifest_version != version:
+              fail(
+                  f"Version mismatch: {CHANGELOG} tops out at {version}, but {MANIFEST} "
+                  f"says {manifest_version}. Bump both in the same commit."
+              )
+
+          notes = "\n".join(body).strip()
+          if not notes:
+              fail(f"The [{version}] section is empty — a release needs notes.")
+
+          if previous:
+              repo = os.environ["GITHUB_REPOSITORY"]
+              notes += (
+                  f"\n\n**Full changelog**: "
+                  f"https://github.com/{repo}/compare/v{previous}...v{version}"
+              )
+
+          notes_path = os.path.join(os.environ.get("RUNNER_TEMP", "."), "release-notes.md")
+          with open(notes_path, "w", encoding="utf-8") as fh:
+              fh.write(notes + "\n")
+
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
+              fh.write(f"version={version}\n")
+              fh.write(f"tag=v{version}\n")
+              fh.write(f"notes_path={notes_path}\n")
+              # A hyphen means a pre-release identifier: 1.1.0-rc.1.
+              fh.write(f"prerelease={'true' if '-' in version else 'false'}\n")
+
+          print(f"::notice::Changelog tops out at {version}")
+          print(notes)
+          PY
+
+      - name: Check whether the version is already released
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.entry.outputs.tag }}
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::$TAG is already released — nothing to do."
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create the release
+        if: steps.check.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.entry.outputs.tag }}
+          NOTES_PATH: ${{ steps.entry.outputs.notes_path }}
+          PRERELEASE: ${{ steps.entry.outputs.prerelease }}
+        run: |
+          args=(
+            --title "$TAG"
+            --notes-file "$NOTES_PATH"
+            --target "$GITHUB_SHA"
+          )
+          if [ "$PRERELEASE" = "true" ]; then
+            args+=(--prerelease)
+          fi
+
+          gh release create "$TAG" "${args[@]}"
+          echo "::notice::Published $TAG"

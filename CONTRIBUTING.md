@@ -36,7 +36,8 @@ start a new session) after installing so commands, agents, skills, and the hook 
 | `commands/` | The `/bluewright:*` slash commands | One file per command; the filename is the command name. |
 | `agents/` | Read-only subagents the commands dispatch | Never write files, never touch the network. |
 | `skills/<name>/SKILL.md` | Reusable procedures shared by commands | Format details belong in the spec, procedure and quality bar belong here. |
-| `hooks/` | `check-workspace-version.py` and its registration | The only executable code in the repo. |
+| `hooks/` | `check-workspace-version.py` and its registration | The only executable code shipped to users. |
+| `.github/workflows/` | `validate.yml` (manifest checks) and `release.yml` (changelog-driven releases) | CI only; not part of the installed plugin. |
 | `docs/spec.md` | The on-disk contract | Single source of truth for layout, file formats, and IDs. |
 | `docs/manual.html` | The user manual | Keep in sync when user-visible behaviour changes. |
 
@@ -134,9 +135,32 @@ an existing file format without one.
 Every user-visible change gets a line in [`CHANGELOG.md`](CHANGELOG.md) under
 `## [Unreleased]`, grouped as Added / Changed / Fixed / Removed. Write it for someone
 deciding whether to update — what they can now do, or what behaves differently — and say
-so explicitly when the change touches what's written on disk. Releasing means renaming
-that heading to the new version with the date, adding a fresh empty `## [Unreleased]`, and
-updating the link definitions at the bottom of the file.
+so explicitly when the change touches what's written on disk.
+
+## Releasing
+
+The changelog is the release trigger. To cut a version:
+
+1. Rename `## [Unreleased]` to `## [X.Y.Z] — YYYY-MM-DD`, add a fresh empty
+   `## [Unreleased]` above it, and update the link definitions at the bottom of the file.
+2. Set the same `X.Y.Z` in `.claude-plugin/plugin.json`.
+3. Merge to `master`.
+
+`.github/workflows/release.yml` takes it from there: on any push to `master` that touches
+`CHANGELOG.md`, it reads the topmost released section, tags the commit `vX.Y.Z`, and
+publishes a GitHub release with that section as the notes.
+
+Three things about it are worth knowing:
+
+- **The version must match.** If the top of the changelog and `plugin.json` disagree, the
+  job fails rather than releasing the wrong number. Bump both in the same commit.
+- **It's idempotent.** A version that's already released is skipped, so editing a typo in
+  a shipped entry — or adding a line under `Unreleased` — publishes nothing.
+- **It can be re-run by hand.** Use the workflow's `Run workflow` button
+  (`workflow_dispatch`) if a run failed for an unrelated reason.
+
+A version with a pre-release identifier (`1.1.0-rc.1`) is published as a GitHub
+pre-release automatically.
 
 ## Pull requests
 

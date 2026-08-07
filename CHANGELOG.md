@@ -11,7 +11,12 @@ explicitly when a release changes anything on disk.
 
 ## [Unreleased]
 
-Nothing yet.
+### Added
+
+- Changelog-driven releases: pushing a new version section to `master` tags the commit
+  and publishes a GitHub release with that section as the notes
+  (`.github/workflows/release.yml`). Repository tooling only — nothing changes for
+  installed plugins or existing workspaces.
 
 ## [1.0.0] — 2026-08-06
 
