@@ -131,6 +131,13 @@ The major bump matters: `hooks/check-workspace-version.py` blocks commands when 
 workspace and plugin majors differ, telling the user migration is required. Don't reshape
 an existing file format without one.
 
+Every user-visible change gets a line in [`CHANGELOG.md`](CHANGELOG.md) under
+`## [Unreleased]`, grouped as Added / Changed / Fixed / Removed. Write it for someone
+deciding whether to update — what they can now do, or what behaves differently — and say
+so explicitly when the change touches what's written on disk. Releasing means renaming
+that heading to the new version with the date, adding a fresh empty `## [Unreleased]`, and
+updating the link definitions at the bottom of the file.
+
 ## Pull requests
 
 - Branch off `master` and keep the pull request focused on one change.
@@ -139,6 +146,6 @@ an existing file format without one.
 - In the description, say what you ran to check it — the validate output and which command
   you exercised on a scratch workspace.
 - Bump the plugin version in the same pull request when the change warrants one, per the
-  table above.
+  table above, and add the changelog entry alongside it.
 
 Contributions are accepted under the repository's [MIT license](LICENSE).

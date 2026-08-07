@@ -77,6 +77,8 @@ sample payloads — and run `/bluewright:brief`.
 - **[User manual](docs/manual.html)** — the guided tour, with a worked example.
 - **[Workspace specification](docs/spec.md)** — the on-disk contract: folder layout, file
   formats, ID schemes, and versioning rules that every command follows.
+- **[Changelog](CHANGELOG.md)** — what changed in each release, and whether it touches
+  anything on disk.
 
 ## What's in the plugin
 
