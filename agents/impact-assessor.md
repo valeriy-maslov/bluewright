@@ -25,7 +25,9 @@ broke"** — you are that judgment.
 
 ## Procedure
 1. Build the assumption base: every accepted decision's Context/Consequences,
-   every constraint (C-n) and NFR in the brief, every open question.
+   every constraint (C-n) and NFR in the brief, every unresolved question —
+   `## Parked` as well as `## Active`, since an external change can settle
+   something that was parked precisely because nothing local could settle it.
 2. Walk every change and test it against that base. For repo commits, use
    `git show`/`git diff` on the listed paths when the subject line alone
    can't settle whether an assumption is touched.
@@ -34,7 +36,16 @@ broke"** — you are that judgment.
    - `weakens` — still holds, but the margin shrank or a risk grew;
    - `informs` — relevant knowledge, no assumption touched;
    - `answers` — the change settles an open Q-###.
-4. Everything else is noise — count it, don't itemize it.
+4. Give each hit a `level` — the earliest phase at which acting on it changes
+   anything: `frame` (a requirement or constraint moved), `options` (the
+   viable approaches moved), `design` (only the shape of the chosen approach
+   moved), `build` (implementation detail). When torn, choose the lower one;
+   the orchestrator parks the low ones rather than putting them in front of
+   the user. `breaks` hits are the exception — they carry a level too, but
+   the orchestrator surfaces them regardless.
+5. Everything else is noise — count it, don't itemize it. This is the whole
+   job: an unattended sync that reports nine hits a week is a sync nobody
+   reads.
 
 ## Hard rules
 - Every hit cites its evidence: commit hash + file, issue key, or page title.
@@ -46,6 +57,7 @@ broke"** — you are that judgment.
 ```
 assumptionsChecked: <n decisions, n constraints/NFRs, n open questions>
 hits: [{ target: D-00X|C-n|NFR-n|Q-00X, class: breaks|weakens|informs|answers,
+         level: frame|options|design|build,
          change: <one line>, evidence: <hash+file | issue | page>,
          suggestedAction: <one line — e.g. "raise Q: does X overturn D-004?"> }]
 noise: <n changes judged irrelevant>

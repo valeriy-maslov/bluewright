@@ -10,7 +10,10 @@ investigation's assumptions moved**. Composable with /loop or a schedule:
 must run to a useful end without user interaction.
 
 First read the spec at `${CLAUDE_PLUGIN_ROOT}/docs/spec.md` and follow its
-formats and resolution rules exactly.
+formats and resolution rules exactly, and load the `bluewright:item-triage`
+skill before writing anything to `questions.md` or `todo.md`. `/sync` can run
+unattended and repeatedly against the same watchlist, so it is the writer most
+likely to accumulate near-duplicates — dedup is not optional here.
 
 Argument: `$ARGUMENTS`
 
@@ -39,20 +42,28 @@ Argument: `$ARGUMENTS`
    investigation path, the collected `changes[]`, and the watched repo
    paths. Do not pre-filter "obviously irrelevant" changes — relevance is
    the assessor's judgment, not the gatherer's.
-5. **Ripple the hits** from the ImpactDigest:
+5. **Ripple the hits** from the ImpactDigest — deduplicating each one against
+   `questions.md` and `todo.md` (`Active` *and* `Parked`) before allocating
+   any ID; a change that moves the same ground a previous sync already
+   flagged adds an evidence line to that entry, not a second entry:
    - `breaks` / `weakens` on a D-### → raise a question ("Does <change>
-     overturn D-00X?", Blocks: that decision's area) and flag it prominently
-     — never silently supersede a decision (same principle as /capture);
-   - `answers` a Q-### → record the answer with the evidence reference;
-   - `informs` → a `todo.md` entry or a watchlist `note` update, whichever
-     fits;
+     overturn D-00X?", `Blocks:` that decision's area, and therefore active
+     whatever its level) and flag it prominently — never silently supersede
+     a decision (same principle as /capture);
+   - `answers` a Q-### → record the answer with the evidence reference,
+     whether the question was active or parked;
+   - `informs` → a `todo.md` entry at the hit's level (usually `design` or
+     `build`, so usually parked) or a watchlist `note` update, whichever
+     fits. An `informs` hit is by definition not blocking anything, so it
+     must never land in `Now`;
    - update `KNOWLEDGE.md` Systems section for facts other investigations
      would care about.
 6. **Record.** Append the run section to `sync-log.md` per the spec (per
    entry: change counts + skips; impact one-liners with IDs raised), then
    set `sync.last_run` to now. `/sync` is the only writer of both.
 7. **Report** one screen: changes found per entry, hits with their class and
-   the IDs created, skipped entries and why, and — if anything `breaks` —
+   the IDs created or the existing IDs that gained evidence, parked items as
+   a count by level, skipped entries and why, and — if anything `breaks` —
    the explicit callout that a decision needs re-ruling.
 
 ## Rules

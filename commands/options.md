@@ -9,7 +9,8 @@ credible approaches, research them side by side, and land a proposed
 decision — the pivot from "what do we need" to "how will we do it".
 
 First read the spec at `${CLAUDE_PLUGIN_ROOT}/docs/spec.md` and follow its
-formats and resolution rules exactly.
+formats and resolution rules exactly, and load the `bluewright:item-triage`
+skill before writing anything to `questions.md` or `todo.md`.
 
 Argument: `$ARGUMENTS`
 
@@ -19,8 +20,11 @@ Argument: `$ARGUMENTS`
 2. **Precondition.** Read `outputs/brief.md`. If it doesn't exist, say the
    analysis will be much weaker without it and ask whether to run
    `/bluewright:brief` first (recommended) or proceed from `inputs/` alone.
-   Also read `questions.md`: list any open question that blocks option
-   choice, and confirm the user wants to proceed despite them.
+   Also read `questions.md`: list any active question that blocks option
+   choice, and confirm the user wants to proceed despite them. If
+   `investigation.yml` still says `phase: frame`, the move to `options` is
+   what activates the parked `options`-level items — set the phase, promote
+   them into `## Active` / `Now`, and include them in that list.
 3. **Agree the frame with the user before any research.** Propose, then
    confirm in one round:
    - **candidates** — 2 to 5 credible approaches (from the brief, survey
@@ -45,14 +49,19 @@ Argument: `$ARGUMENTS`
    - Recommendation → a `Status: proposed` decision entry via the
      `bluewright:decision-entry` skill (the user accepts it later — do not
      mark it accepted yourself);
-   - each unknown that needs a spike → `questions.md` + a `todo.md` entry
-     ("spike: ..."), so `/bluewright:spike` can pick it up;
+   - each unknown that needs a spike → `questions.md` at `Level: options`
+     (it discriminates between candidates, which is what makes it worth a
+     spike) + a `todo.md` entry ("spike: ..."), so `/bluewright:spike` can
+     pick it up. Dedup first, per the item-triage skill — scouts routinely
+     rediscover unknowns the brief already raised;
+   - scouts' remaining unknowns that would only shape the chosen approach are
+     `Level: design` and park — they are not this phase's business;
    - eliminated candidates get one line in the proposed entry's Context —
      ruling out is also a decision.
 7. **Report** one screen: candidates researched, the matrix verdict in two
-   sentences, the proposed D-ID, spike candidates, and the next step —
-   usually `/bluewright:spike <name>` or accepting the proposed decision
-   via `/bluewright:capture`.
+   sentences, the proposed D-ID, spike candidates, parked unknowns as a count
+   by level, and the next step — usually `/bluewright:spike <name>` or
+   accepting the proposed decision via `/bluewright:capture`.
 
 ## Rules
 

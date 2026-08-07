@@ -35,6 +35,21 @@ investigation) and they know where they are. There is no global registry to conf
 Then drop whatever you have into `inputs/` — requirement docs, meeting notes, diagrams,
 sample payloads — and run `/bluewright:brief`.
 
+## Altitude
+
+An investigation raises far more questions than it can usefully hold at once, and most of
+them are about details that only matter after choices you haven't made yet. So every question
+and task carries a **level** — the earliest phase at which answering it changes anything:
+`frame`, `options`, `design`, or `build`.
+
+Items at or above the phase you're in stay active. Everything below it is **parked**: kept,
+searchable, and out of your way until its phase arrives. `/bluewright:design` promotes the
+parked design-level questions when it runs, and drafts tickets from the build-level ones.
+Parking defers; it never discards.
+
+The same discipline applies on the way in: a capture that restates an existing question adds
+evidence to it instead of creating a second one.
+
 ## Commands
 
 **Setting up — once each**
@@ -43,13 +58,15 @@ sample payloads — and run `/bluewright:brief`.
 |---|---|
 | `/bluewright:init <path>` | Creates a workspace: `workspace.yml`, `KNOWLEDGE.md`, git init. Asks for team defaults; refuses to nest inside another workspace. |
 | `/bluewright:new <slug>` | Creates one investigation: the folder structure, the four living files, and your kickoff answers preserved in `inputs/00-intake.md`. |
+| `/bluewright:migrate` | Brings an existing workspace up to the installed plugin's format, then records the new version. Needed after a major upgrade — the version hook says when. |
 
 **Every day**
 
 | Command | What it does |
 |---|---|
-| `/bluewright:status` | One screen: phase, next tasks, open questions (blocking first), latest decisions, sync freshness. Read-only. |
-| `/bluewright:capture` | The inbox. Paste feedback, a Slack thread, meeting notes — it saves the raw text and routes each item to a decision, question, or task. Never overrules an accepted decision by itself. |
+| `/bluewright:status` | One screen: phase, next tasks, active questions (blocking first), what's parked, latest decisions, sync freshness. Read-only. |
+| `/bluewright:capture` | The inbox. Paste feedback, a Slack thread, meeting notes — it saves the raw text and routes each item to a decision, question, or task. Deduplicates against what's already there, and parks anything below the altitude you're working at. Never overrules an accepted decision by itself. |
+| `/bluewright:groom` | Consolidates the lists when they've drifted: re-levels everything against the current phase and proposes merges for your confirmation. Nothing is deleted. |
 
 **Analysis**
 
@@ -99,13 +116,18 @@ bluewright/
 Each workspace records the plugin version that created it in `workspace.yml`:
 
 ```yaml
-bluewright: "1.0.0"
+bluewright: "2.0.0"
 ```
 
 A `UserPromptSubmit` hook compares that against the installed plugin on every
 `/bluewright:*` command and blocks when the workspace is newer than the plugin, or when a
-major-version format change needs a migration. See
+major-version format change needs a migration. `/bluewright:init` and `/bluewright:migrate`
+are exempt — migration has to stay reachable in the workspaces the block applies to. See
 [`docs/spec.md`](docs/spec.md) § Versioning.
+
+Upgrading across a major version means running `/bluewright:migrate` once per workspace. It
+converts every investigation in place, preserves every `Q-###` and `T-###`, requires a clean
+git tree, and never commits — so `git diff` is the review and `git revert` is the undo.
 
 ## Local development
 

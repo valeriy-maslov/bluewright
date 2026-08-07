@@ -26,16 +26,25 @@ with `Status: proposed` instead when the evidence clearly points somewhere.
 3. The log is append-only, with exactly one permitted edit of old entries:
    when a new decision supersedes `D-00X`, change that entry's `Status:` line
    to `superseded by D-0YY` — touch nothing else in it.
-4. Ripple the decision through the other spine files:
+4. Ripple the decision through the other spine files. Load the
+   `bluewright:item-triage` skill before writing to `questions.md` or
+   `todo.md` — a decision's consequences are the classic source of
+   fine-grained follow-ups that swamp a list:
    - `questions.md` — any question this decision answers gets
-     `Status: answered` and an **Answer:** line referencing the D-ID;
+     `Status: answered`, an **Answer:** line referencing the D-ID, and moves
+     to `## Closed`. Check `## Parked` too: settling an approach frequently
+     answers questions that were parked precisely because the approach was
+     unsettled;
    - `todo.md` — tick TODOs the decision completes; add new ones its
-     Consequences imply (next `T-###`);
+     Consequences imply (next `T-###`), each with its `(level: …)` and placed
+     by the altitude gate. A decision made during `options` usually implies
+     `design`-level work, which parks;
    - `KNOWLEDGE.md` (workspace root) — if the decision is reusable knowledge
      for other investigations (a system fact, an org constraint), update the
      investigation's index line or the Systems section;
    - `investigation.yml` — update `phase` if this decision moves it.
-5. Report the entry ID and every ripple made.
+5. Report the entry ID and every ripple made — questions closed by name,
+   new TODOs enumerated if active and counted by level if parked.
 
 ## Quality bar
 

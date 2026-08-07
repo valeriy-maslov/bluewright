@@ -49,8 +49,10 @@ Order of operations, feature flags, data migration, backout plan,
 cross-team dependencies (from the watchlist — who must know).
 
 ## 8. Risks and open items
-Accepted risks with mitigations; open Q-### that survive into
-implementation, each with its blast radius.
+Accepted risks with mitigations; active Q-### that survive into
+implementation, each with its blast radius. Questions still parked at
+`build` level are not listed here one by one — they are ticket material;
+note their count and point at `outputs/tickets.md`.
 
 ## 9. References
 Brief, options matrix, spike verdicts, key decisions, external sources.

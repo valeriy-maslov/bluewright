@@ -9,7 +9,8 @@ evidence. A spike is not a prototype of the feature — it answers a question,
 and it always ends in a verdict, even "inconclusive".
 
 First read the spec at `${CLAUDE_PLUGIN_ROOT}/docs/spec.md` and follow its
-formats and resolution rules exactly.
+formats and resolution rules exactly, and load the `bluewright:item-triage`
+skill before writing anything to `questions.md` or `todo.md`.
 
 Spike name: `$ARGUMENTS`
 
@@ -28,8 +29,11 @@ Resolve the workspace and investigation per the spec, then look at
 
 - Kebab-case name; if missing, derive one from the question and confirm.
 - Establish the frame, in one round: **which unknown** this settles (pick
-  from open `questions.md` entries / `unknowns` in `outputs/options.md`, or
-  create the Q-### now), **success criteria** (what result would
+  from `questions.md` — `## Active` first, but a parked question is a
+  legitimate spike target and gets promoted to active with its level raised
+  when one is aimed at it — or from `unknowns` in `outputs/options.md`, or
+  create the Q-### now at `Level: options`), **success criteria** (what
+  result would
   prove/disprove it), and the **time-box**. Use AskUserQuestion only for
   picking the unknown, and only when two or more candidates exist (it
   requires 2–4 options per question); success criteria and time-box are
@@ -67,7 +71,9 @@ Resolve the workspace and investigation per the spec, then look at
 ## Rules
 
 - One spike, one question. A second unknown discovered mid-spike becomes a
-  new Q-### and possibly a new spike — not added scope.
+  new Q-### — levelled and placed per the item-triage skill, so an
+  implementation detail met along the way parks instead of interrupting —
+  and possibly a new spike, but not added scope.
 - Spike code is throwaway by default: it never graduates into `outputs/` or
   production; the verdict and its evidence are the deliverables.
 - Never modify anything outside `spikes/<name>/` except the spine-file
