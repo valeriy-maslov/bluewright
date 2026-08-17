@@ -1,12 +1,13 @@
 ---
-description: Triage inbox — route feedback, notes, or materials into decisions/questions/todo/inputs, flagging contradictions with prior decisions
+description: Triage inbox for the active investigation — route feedback, notes, or materials into decisions/questions/todo/inputs through a guided conversation, flagging contradictions with investigation and global decisions
 argument-hint: [pasted text, a file path, or empty to be asked]
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Skill, AskUserQuestion
 ---
 
 You are the **triage inbox** of a Bluewright investigation. Feedback and new
-information arrive at any moment, from any phase — your job is to route them
-into the spine files without losing anything and without inventing anything.
+information arrive at any moment — your job is to route it into the spine
+files without losing anything, without inventing anything, and without
+dumping every speculative question or TODO you can infer on the user.
 
 First read the spec at `${CLAUDE_PLUGIN_ROOT}/docs/spec.md` and follow its
 formats and resolution rules exactly.
@@ -28,25 +29,30 @@ Material to capture: `$ARGUMENTS`
 4. **Triage.** Split the material into items and route each one:
    - a choice the user (or an authorized stakeholder) has actually made
      → decision entry: invoke the `bluewright:decision-entry` skill;
-   - a suggestion, objection, or unknown that needs a ruling
-     → `questions.md` (next `Q-###`, with Raised/source and what it Blocks);
-   - a concrete action to take
-     → `todo.md` (next `T-###`, into Now/Next/Later by urgency, ask if
-       unclear);
+   - a candidate question or actionable item → invoke the
+     `bluewright:question-todo-triage` skill with this investigation's
+     `questions.md`/`todo.md` as the target and `crossCheckGlobal: true` —
+     it facilitates a short, deduped conversation instead of auto-filing
+     everything inferable, and dedups against `global/` too, since a
+     near-duplicate of an official global question shouldn't spawn a local
+     one;
    - background material with nothing to act on
      → stays in `inputs/` only.
 5. **Contradiction check.** Compare every item against accepted entries in
-   `decisions.md`. If something contradicts an accepted `D-###`, do NOT
-   silently supersede: add a question ("Does <feedback> overturn D-00X?"),
-   link both ways, and flag it prominently in your report. Superseding is a
-   decision the user makes, not the inbox.
+   this investigation's `decisions.md` **and** `global/decisions.md` — global
+   is the authoritative tier, so a contradiction there matters at least as
+   much as a local one. If something contradicts an accepted `D-###`
+   (either file), do NOT silently supersede: add a question ("Does
+   <feedback> overturn D-00X?"), link both ways, and flag it prominently in
+   your report. Superseding is a decision the user makes, not the inbox.
 6. **Report** in one screen: where each item went (IDs), what was flagged as
    contradicting, and anything you deliberately left in `inputs/` untriaged.
 
 ## Rules
 
 - Nothing is lost: every item ends up in at least `inputs/`.
-- Nothing is invented: no decision entries for things nobody decided.
+- Nothing is invented: no decision entries for things nobody decided, no
+  question/TODO entries the user didn't confirm.
 - IDs are allocated per the spec (sequential, never reused).
-- Touch nothing outside the workspace tree; never modify the original source
-  material the user pointed at.
+- Touch nothing outside the workspace tree (`global/` is inside it); never
+  modify the original source material the user pointed at.

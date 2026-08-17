@@ -372,9 +372,9 @@
 <body>
 <div class="wrap">
   <header class="masthead">
-    <p class="eyebrow">Claude Code plugin · v1.0.0</p>
+    <p class="eyebrow">Claude Code plugin · v2.0.0</p>
     <h1>Bluewright User Manual</h1>
-    <p class="dek">A workspace for feature investigations — from the first pile of requirements to a solution design your team can act on, with every decision on the record.</p>
+    <p class="dek">A workspace for capturing what a team knows — an official, workspace-wide record plus per-investigation notes that can graduate into it — and for turning what's captured into answers and artifacts on demand.</p>
   </header>
 
   <div class="grid">
@@ -396,43 +396,48 @@
     <main>
       <section id="what">
         <h2><span class="num">1</span>What Bluewright is</h2>
-        <p>When you investigate a new feature, the work rarely moves in a straight line. You gather requirements, look at what already exists, weigh approaches, sometimes build a quick proof of concept, share drafts, absorb feedback — and meanwhile other teams keep changing the systems you're designing against.</p>
-        <p>Bluewright gives that work a home. It's a set of <code>/bluewright:*</code> commands for Claude Code that keep one folder per investigation: your inputs, your decisions, your open questions, your to-do list, your experiments, and the polished artifacts you share with others. Nothing lives in Claude's memory or in hidden state — everything is plain markdown and YAML in a git repository you own.</p>
-        <p>The end product of an investigation is a <strong>solution design</strong>: a document (plus diagrams) you can present to your team and cut implementation tickets from, where every claim traces back to a recorded decision, a spike result, or a requirement.</p>
+        <p>Teams accumulate knowledge as they work — decisions made, questions still open, things to do next — and most of it lives nowhere durable: a Slack thread, someone's memory, a doc that drifts out of date. Meanwhile every specific piece of work generates its own version of the same three things, most of which never makes it back to the team's shared understanding.</p>
+        <p>Bluewright gives that knowledge a home, at two tiers. <strong>Global</strong> is the workspace's official record — what's actually settled, true for the whole team. Each <strong>investigation</strong> has its own decisions, questions, and TODOs too, not yet official, but promotable once they prove out. It's a set of <code>/bluewright:*</code> commands for Claude Code; nothing lives in Claude's memory or in hidden state — everything is plain markdown and YAML in a git repository you own.</p>
+        <p>Once something is captured, two commands work over it: <code>/bluewright:ask</code> to explore the record without changing it, and <code>/bluewright:make-artifact</code> to turn it into whatever you actually need to hand someone — a doc, a diagram, a summary, an email.</p>
       </section>
 
       <section id="concepts">
-        <h2><span class="num">2</span>How it thinks — four ideas</h2>
+        <h2><span class="num">2</span>How it thinks — three ideas</h2>
 
         <h3>Workspace</h3>
-        <p>A <strong>workspace</strong> is a folder (and git repo) for one product or team. You can have several. It's marked by a <code>workspace.yml</code> file that stores team-wide defaults — Jira project keys, a Confluence space, systems worth watching — so each new investigation starts pre-configured. A <code>KNOWLEDGE.md</code> index at the top links every investigation and collects facts about your systems that outlive any single feature.</p>
+        <p>A <strong>workspace</strong> is a folder (and git repo) for one product or team. You can have several. It's marked by a <code>workspace.yml</code> file that stores team-wide defaults — Jira project keys, a Confluence space, systems worth watching — so each new investigation starts pre-configured. A <code>KNOWLEDGE.md</code> index at the top links every investigation.</p>
 
-        <h3>Investigation</h3>
-        <p>An <strong>investigation</strong> is one feature question, in one subfolder of the workspace. Everything about it lives there:</p>
+        <h3>Global vs. investigation</h3>
+        <p><code>global/</code> is the workspace's official record — decisions, questions, and TODOs true for the whole team, not just one feature. An <strong>investigation</strong> is one feature question, in its own subfolder, with the same three files scoped to just that work. Nothing in an investigation is official until you say so with <code>/bluewright:promote</code>, which copies it into <code>global/</code> and leaves the original untouched:</p>
         <pre><code>my-workspace/
   workspace.yml            ← marks the workspace, holds team defaults
   KNOWLEDGE.md             ← index across all investigations
+  global/                  ← the official, workspace-wide record
+    decisions.md
+    questions.md
+    todo.md
+    inputs/
+    artifacts/
   payments-split/          ← one investigation
-    investigation.yml      ← phase, links, watchlist
+    investigation.yml      ← status, links, watchlist
     inputs/                ← requirements, samples, anything you collect
-    decisions.md           ← the decision log
-    questions.md           ← open questions
-    todo.md                ← prioritized next steps
+    decisions.md           ← the decision log, scoped to this investigation
+    questions.md           ← open questions, scoped to this investigation
+    todo.md                ← prioritized next steps, scoped to this investigation
     sync-log.md            ← trail of external-change checks
-    spikes/                ← proof-of-concept experiments
-    outputs/               ← what you share with others</code></pre>
+    artifacts/             ← what you share with others</code></pre>
 
-        <h3>The four living files</h3>
-        <p>Feedback and outside changes arrive whenever they want, so four files stay alive through every phase and every command reads and updates them:</p>
+        <h3>The living files, at both tiers</h3>
+        <p><code>global/</code> and every investigation share one format for three files that both capture commands write to and every other command reads:</p>
         <ul>
-          <li><strong><code>decisions.md</code></strong> — every choice made, numbered <span class="id-badge">D-001</span>, <span class="id-badge">D-002</span>… Append-only: a wrong decision is superseded by a new entry, never erased. This is your investigation's memory.</li>
+          <li><strong><code>decisions.md</code></strong> — every choice made, numbered <span class="id-badge">D-001</span>, <span class="id-badge">D-002</span>… Append-only: a wrong decision is superseded by a new entry, never erased.</li>
           <li><strong><code>questions.md</code></strong> — everything still unsettled, numbered <span class="id-badge">Q-001</span>… with a note on what each question blocks.</li>
           <li><strong><code>todo.md</code></strong> — prioritized into <em>Now / Next / Later / Done</em>, numbered <span class="id-badge">T-001</span>…</li>
-          <li><strong>the watchlist</strong> (inside <code>workspace.yml</code> and <code>investigation.yml</code>) — the repos, Jira queries, and Confluence pages whose changes could invalidate your work.</li>
         </ul>
+        <p>Global and each investigation number their own <code>D-</code>/<code>Q-</code>/<code>T-</code> sequences independently — a promoted entry gets a new ID in <code>global/</code>, linked back to its source, never the old one.</p>
 
-        <h3>Outputs are the only shareable surface</h3>
-        <p>Only <code>outputs/</code> ever leaves the workspace. It's built to be self-contained: send the folder to a colleague and everything — the brief, the option comparison, the design, rendered diagrams — reads correctly with no other context.</p>
+        <h3>Artifacts are the only shareable surface</h3>
+        <p>Only <code>artifacts/</code> (global or per-investigation) ever leaves the workspace. There's no fixed filename list — <code>/bluewright:make-artifact</code> produces whatever was asked for, self-contained: send the folder to a colleague and it reads correctly with no other context.</p>
       </section>
 
       <section id="start">
@@ -446,38 +451,35 @@
         <pre><code>/bluewright:init ~/work/my-team        # once per product/team
 cd ~/work/my-team
 /bluewright:new payments-split         # once per feature</code></pre>
-        <p>Both commands ask a few short questions — every answer except the title is optional and can be edited later in the YAML files. <code>new</code> creates the whole folder structure above and writes everything you told it into <code>inputs/00-intake.md</code>, so nothing said at kickoff gets lost.</p>
+        <p>Both commands ask a few short questions — every answer except the title is optional and can be edited later in the YAML files. <code>init</code> also scaffolds <code>global/</code>; <code>new</code> creates the investigation folder structure above and writes everything you told it into <code>inputs/00-intake.md</code>, so nothing said at kickoff gets lost.</p>
 
         <div class="tip"><span class="t">Where to run commands</span>
         Bluewright finds your workspace by walking up from the folder you're standing in — exactly like git finds a repository. Run commands from inside the workspace (or inside a specific investigation), and they know where they are. There is no global registry to configure.</div>
 
-        <h3>Then: feed it and ask for the brief</h3>
-        <p>Drop whatever you have into <code>inputs/</code> — requirement docs, meeting notes, diagrams, sample payloads, anything. When there's enough to chew on, run <code>/bluewright:brief</code>.</p>
+        <h3>Then: capture what you know</h3>
+        <p>Paste, point at a file, or just talk — <code>/bluewright:capture-global</code> for anything workspace-wide and official, <code>/bluewright:capture</code> for anything specific to the investigation you're in. Both save what you give them verbatim first, then guide you through which questions or TODOs are actually worth tracking, instead of filing everything they can infer.</p>
       </section>
 
       <section id="workflow">
         <h2><span class="num">4</span>The workflow</h2>
-        <p>An investigation moves through five phases. The commands map onto them:</p>
-        <div class="flow" role="img" aria-label="Phase flow: Frame, then Options, then Spike, then Share, then Design">
-          <span class="step">Frame<small>/brief</small></span>
+        <p>There's no fixed sequence of phases — capture, then ask or make an artifact, whenever there's enough to work with:</p>
+        <div class="flow" role="img" aria-label="Capture, then Ask or Make artifact, then optionally Promote">
+          <span class="step">Capture<small>/capture, /capture-global</small></span>
           <span class="arrow">→</span>
-          <span class="step">Options<small>/options</small></span>
+          <span class="step">Ask<small>/ask</small></span>
+          <span class="arrow">/</span>
+          <span class="step">Make artifact<small>/make-artifact</small></span>
           <span class="arrow">→</span>
-          <span class="step">Spike<small>/spike</small></span>
-          <span class="arrow">→</span>
-          <span class="step">Share<small>/publish</small></span>
-          <span class="arrow">→</span>
-          <span class="step">Design<small>/design</small></span>
+          <span class="step">Promote<small>/promote</small></span>
         </div>
-        <p class="flow-note">The arrows are the happy path, not a cage: feedback (<code>/capture</code>) and external changes (<code>/sync</code>) can arrive at any moment and legitimately reopen an earlier phase. Not every investigation needs a spike; skip what the work doesn't call for.</p>
+        <p class="flow-note">The arrows are the happy path, not a cage: capture can happen at any moment, in any order, at either tier, and you loop back to it as often as new information arrives. Promotion is optional and only for what's actually proven out.</p>
 
         <h3>A typical run</h3>
         <ol>
-          <li><strong>Frame.</strong> <code>/brief</code> reads everything in <code>inputs/</code>, surveys the systems on your watchlist in parallel, and writes <code>outputs/brief.md</code>: numbered requirements (<span class="id-badge">FR-1</span>, <span class="id-badge">NFR-1</span>, <span class="id-badge">C-1</span>), a domain glossary, the current state of each system — and turns every gap or contradiction it finds into a question.</li>
-          <li><strong>Options.</strong> <code>/options</code> first agrees the candidate approaches and judging criteria <em>with you</em>, then researches each candidate in parallel and writes <code>outputs/options.md</code>: a scored comparison matrix and a recommendation, recorded as a <em>proposed</em> decision — accepting it stays your call.</li>
-          <li><strong>Spike</strong> (when needed). <code>/spike kafka-ordering</code> scaffolds a time-boxed experiment tied to one open question. It ends in a written verdict — proven, disproven, or honestly inconclusive. The code is throwaway; the verdict is the deliverable.</li>
-          <li><strong>Share.</strong> <code>/publish</code> renders your PlantUML diagrams to PNG, checks that <code>outputs/</code> is truly self-contained, marks anything stale, and refreshes a reading-order README. Send the folder, collect feedback, feed it to <code>/capture</code>.</li>
-          <li><strong>Design.</strong> <code>/design</code> checks you're actually ready (approach accepted? blocking questions answered? spikes concluded?), then synthesizes <code>outputs/design.md</code> from the record — and can draft implementation tickets from it.</li>
+          <li><strong>Capture.</strong> <code>/bluewright:capture-global</code> or <code>/bluewright:capture</code> saves whatever you give them verbatim, then walks you through a short, guided conversation about which questions or TODOs are actually worth tracking — never dumping every speculative item it can infer, and never silently overruling an accepted decision it contradicts.</li>
+          <li><strong>Ask.</strong> When you need to think something through, <code>/bluewright:ask</code> answers grounded in what's captured — global and the active investigation together — citing IDs and sources, and saying "not captured yet" rather than guessing.</li>
+          <li><strong>Make an artifact.</strong> When you need to hand something to someone, <code>/bluewright:make-artifact</code> produces it — a doc, a diagram, a summary, an email, whatever fits the ask — flagging anything the record doesn't actually support instead of inventing to fill the gap.</li>
+          <li><strong>Promote</strong> (when something proves out). <code>/bluewright:promote</code> copies a decision, question, or TODO from an investigation into <code>global/</code>, with a back-reference to where it came from. The investigation's own entry is never touched.</li>
         </ol>
       </section>
 
@@ -489,11 +491,27 @@ cd ~/work/my-team
           <p class="label">Setting up — once each</p>
           <div class="cmd">
             <span class="name">/bluewright:init &lt;path&gt;</span>
-            <p class="what">Creates a workspace: <code>workspace.yml</code>, <code>KNOWLEDGE.md</code>, git init. Asks for team defaults; refuses to nest inside another workspace.</p>
+            <p class="what">Creates a workspace: <code>workspace.yml</code>, <code>KNOWLEDGE.md</code>, <code>global/</code>, git init. Asks for team defaults; refuses to nest inside another workspace.</p>
           </div>
           <div class="cmd">
             <span class="name">/bluewright:new &lt;slug&gt;</span>
-            <p class="what">Creates one investigation: the folder structure, the four living files, and your kickoff answers preserved in <code>inputs/00-intake.md</code>.</p>
+            <p class="what">Creates one investigation: the folder structure, the three living files, and your kickoff answers preserved in <code>inputs/00-intake.md</code>.</p>
+          </div>
+        </div>
+
+        <div class="cmd-group">
+          <p class="label">Capturing</p>
+          <div class="cmd">
+            <span class="name">/bluewright:capture-global</span>
+            <p class="what">The inbox for the workspace's official record. Paste feedback, notes, anything workspace-wide — saves the raw text to <code>global/inputs/</code>, then guides you through which questions/TODOs are worth tracking. Never overrules an accepted decision by itself. <em class="when">Use for anything that's actually official, from any investigation or none.</em></p>
+          </div>
+          <div class="cmd">
+            <span class="name">/bluewright:capture</span>
+            <p class="what">The same inbox, scoped to the active investigation — not yet official, but promotable. <em class="when">Use whenever new information arrives about this investigation specifically.</em></p>
+          </div>
+          <div class="cmd">
+            <span class="name">/bluewright:promote</span>
+            <p class="what">Copies selected decisions/questions/TODOs from an investigation into <code>global/</code>, with a back-reference to the source. Never edits the investigation's original entry — a copy, never a move.</p>
           </div>
         </div>
 
@@ -501,27 +519,15 @@ cd ~/work/my-team
           <p class="label">Every day</p>
           <div class="cmd">
             <span class="name">/bluewright:status</span>
-            <p class="what">One screen: phase, next tasks, open questions (blocking first), latest decisions, sync freshness — plus flags like "outputs older than your newest decision". Read-only, changes nothing. <em class="when">Start your day here.</em></p>
+            <p class="what">One screen: a global-record glance, status, next tasks, open questions (blocking first), latest decisions, sync freshness — plus flags like "artifacts older than your newest decision". Read-only, changes nothing. <em class="when">Start your day here.</em></p>
           </div>
           <div class="cmd">
-            <span class="name">/bluewright:capture</span>
-            <p class="what">The inbox. Paste feedback, a Slack thread, meeting notes — it saves the raw text to <code>inputs/</code>, then routes each item to a decision, question, or task. If feedback contradicts an accepted decision it raises a question and flags it loudly — it never overrules a decision by itself. <em class="when">Use whenever new information arrives, in any phase.</em></p>
-          </div>
-        </div>
-
-        <div class="cmd-group">
-          <p class="label">Analysis</p>
-          <div class="cmd">
-            <span class="name">/bluewright:brief</span>
-            <p class="what">Requirements analysis: digests <code>inputs/</code>, surveys watched systems, writes <code>outputs/brief.md</code>, seeds questions from the gaps.</p>
+            <span class="name">/bluewright:ask</span>
+            <p class="what">Interactively analyze what's captured — global and the active investigation together — without changing anything. Cites what it's drawing on every time; says "not captured yet" rather than inventing. <em class="when">Use whenever you need to think something through.</em></p>
           </div>
           <div class="cmd">
-            <span class="name">/bluewright:options</span>
-            <p class="what">Option comparison: candidates and criteria agreed with you first, parallel research per candidate, scored matrix in <code>outputs/options.md</code>, recommendation as a proposed decision.</p>
-          </div>
-          <div class="cmd">
-            <span class="name">/bluewright:spike &lt;name&gt;</span>
-            <p class="what">Time-boxed proof of concept answering exactly one question. The spike folder is the one place where installing and running things is allowed. Always ends in a <code>VERDICT.md</code>.</p>
+            <span class="name">/bluewright:make-artifact</span>
+            <p class="what">Turns captured information into whatever you ask for — a doc, a diagram, a wiki page, an email, a summary, a presentation outline, anything — grounded in the record, flagging what's thin instead of inventing to fill it. <em class="when">Use whenever you need to hand something to someone.</em></p>
           </div>
         </div>
 
@@ -530,18 +536,6 @@ cd ~/work/my-team
           <div class="cmd">
             <span class="name">/bluewright:sync</span>
             <p class="what">Checks every watchlist entry for changes since the last run — commits in watched repos, updated Jira issues, edited Confluence pages — and answers the question that matters: <strong>which of my assumptions moved?</strong> Breaking changes raise questions against the affected decisions. Runs unattended, so you can schedule it nightly. <em class="when">Run before big steps, or on a schedule.</em></p>
-          </div>
-        </div>
-
-        <div class="cmd-group">
-          <p class="label">Delivering</p>
-          <div class="cmd">
-            <span class="name">/bluewright:publish</span>
-            <p class="what">Makes <code>outputs/</code> shareable: renders diagrams, verifies nothing links outside the folder, marks stale artifacts honestly, refreshes the README index.</p>
-          </div>
-          <div class="cmd">
-            <span class="name">/bluewright:design</span>
-            <p class="what">The finale: synthesizes <code>outputs/design.md</code> from your decisions, option analysis, and spike verdicts — refusing politely if blocking questions are still open. Offers to draft implementation tickets.</p>
           </div>
         </div>
       </section>
@@ -554,77 +548,84 @@ cd ~/work/my-team
           <span class="day">Day 1</span>
           <div class="body">
             <span class="run">/bluewright:init ~/work/platform</span>
-            <p>One-time workspace setup (skip if your team already has one). You give it the team name and Jira project key; it creates <code>workspace.yml</code> and <code>KNOWLEDGE.md</code> and git-inits the folder.</p>
+            <p>One-time workspace setup (skip if your team already has one). You give it the team name and Jira project key; it creates <code>workspace.yml</code>, <code>KNOWLEDGE.md</code>, and <code>global/</code>, and git-inits the folder.</p>
+          </div>
+        </div>
+        <div class="ex-step">
+          <span class="day"></span>
+          <div class="body">
+            <span class="run">/bluewright:capture-global</span>
+            <p>Before any feature work, you record something already official platform-wide: every new service emits change events through the outbox pattern. Saved as <span class="id-badge">D-001</span> in <code>global/decisions.md</code> — every future investigation can rely on it without re-litigating it.</p>
           </div>
         </div>
         <div class="ex-step">
           <span class="day"></span>
           <div class="body">
             <span class="run">/bluewright:new order-webhooks</span>
-            <p>You state the goal — <em>"How do we notify subscribers of order-status changes within 60 seconds?"</em> — link the Jira epic, and put two repos on the watchlist: your <code>order-service</code> clone and the other team's <code>api-gateway</code>. Everything you said lands in <code>inputs/00-intake.md</code>. You then drop the integration contract and two meeting notes into <code>inputs/</code>.</p>
+            <p>You state the goal — <em>"How do we notify subscribers of order-status changes within 60 seconds?"</em> — link the Jira epic, and put two repos on the watchlist: your <code>order-service</code> clone and the other team's <code>api-gateway</code>. Everything you said lands in <code>inputs/00-intake.md</code>.</p>
           </div>
         </div>
         <div class="ex-step">
           <span class="day">Day 2</span>
           <div class="body">
-            <span class="run">/bluewright:brief</span>
-            <p>The inputs are digested and both watched repos surveyed in parallel. Out comes <code>outputs/brief.md</code>: eight functional requirements, three non-functionals (<span class="id-badge">NFR-2</span>: delivery within 60s), two constraints — and two gaps turned into questions: <span class="id-badge">Q-001</span> "What delivery guarantee do subscribers need?" and <span class="id-badge">Q-002</span> "Who owns the subscriber registry?".</p>
+            <span class="run">/bluewright:capture</span>
+            <p>You drop the integration contract and two meeting notes into the conversation. They're saved verbatim first, then a guided round surfaces exactly two things worth tracking — not a swamp of every ambiguity in the notes: <span class="id-badge">Q-001</span> "What delivery guarantee do subscribers need?" and <span class="id-badge">Q-002</span> "Who owns the subscriber registry?". A third candidate ("should retries be exponential?") gets discussed and dropped — too deep, not blocking anything yet.</p>
           </div>
         </div>
         <div class="ex-step">
           <span class="day"></span>
           <div class="body">
             <span class="run">/bluewright:capture</span>
-            <p>You paste the product manager's Slack reply. The raw text is saved to <code>inputs/</code>, <span class="id-badge">Q-001</span> gets its answer (at-least-once is fine, duplicates acceptable), and the registry question becomes a task to chase.</p>
+            <p>You paste the product manager's Slack reply. <span class="id-badge">Q-001</span> gets its answer (at-least-once is fine, duplicates acceptable), and the registry question becomes a task to chase.</p>
           </div>
         </div>
         <div class="ex-step">
           <span class="day">Day 3</span>
           <div class="body">
-            <span class="run">/bluewright:options</span>
-            <p>You confirm three candidates — a polling feed, webhooks from an outbox + queue, a managed event bus — and the criteria, with <span class="id-badge">NFR-2</span> as a must-have. Three researchers run in parallel; the matrix in <code>outputs/options.md</code> eliminates polling (can't meet 60s at subscriber scale) and proposes <span class="id-badge">D-003</span>: webhooks via outbox. One unknown remains: can <code>order-service</code> emit reliably without a schema change? That becomes a spike task.</p>
-          </div>
-        </div>
-        <div class="ex-step">
-          <span class="day">Day 4</span>
-          <div class="body">
-            <span class="run">/bluewright:spike outbox-emit</span>
-            <p>Scaffolded against that open question with a one-day time-box. Inside <code>spikes/outbox-emit/</code> you build a throwaway harness against a copy of the schema. Verdict: <strong>proven</strong> — no schema change needed. The question is answered with the evidence linked; you accept <span class="id-badge">D-003</span> via <code>/capture</code>.</p>
-          </div>
-        </div>
-        <div class="ex-step">
-          <span class="day">Day 5</span>
-          <div class="body">
-            <span class="run">/bluewright:sync</span>
-            <p>Morning check. The gateway team merged four commits overnight; one renames the event envelope's <code>type</code> field. The impact report says: <em>weakens <span class="id-badge">D-003</span> — the outbox format assumed the old envelope</em>, and raises <span class="id-badge">Q-004</span>. You re-rule the same day, before the design would have shipped the wrong contract.</p>
-          </div>
-        </div>
-        <div class="ex-step">
-          <span class="day">Day 6</span>
-          <div class="body">
-            <span class="run">/bluewright:design</span>
-            <p>Gates pass: approach accepted, no blocking questions, spike concluded. Out comes <code>outputs/design.md</code> — every section tracing to a decision, verdict, or requirement ID — plus a context and a container diagram, and a draft <code>outputs/tickets.md</code> cut from the design's subsections.</p>
+            <span class="run">/bluewright:ask what does this investigation already have to respect?</span>
+            <p>Read-only sanity check before committing to an approach. The answer pulls in global <span class="id-badge">D-001</span> (the outbox mandate) alongside the investigation's own record, and points out that a pure polling feed would sidestep the mandate — worth deciding explicitly, not by accident.</p>
           </div>
         </div>
         <div class="ex-step">
           <span class="day"></span>
           <div class="body">
-            <span class="run">/bluewright:publish</span>
-            <p>Diagrams render to PNG, links are verified self-contained, <code>outputs/README.md</code> gives the reading order. You send the <code>outputs/</code> folder to the architects. Their feedback next week? Straight into <code>/capture</code> — the loop is built for it.</p>
+            <span class="run">/bluewright:capture</span>
+            <p>You record the approach: webhooks delivered via the outbox, honoring global <span class="id-badge">D-001</span>. Saved as this investigation's <span class="id-badge">D-001</span>, linked to the global decision it follows from.</p>
+          </div>
+        </div>
+        <div class="ex-step">
+          <span class="day">Day 4</span>
+          <div class="body">
+            <span class="run">/bluewright:sync</span>
+            <p>Morning check. The gateway team merged four commits overnight; one renames the event envelope's <code>type</code> field. The impact report says: <em>weakens <span class="id-badge">D-001</span> — the outbox format assumed the old envelope</em>, and raises <span class="id-badge">Q-003</span>. You re-rule the same day via <code>/bluewright:capture</code>, before an artifact would have shipped the wrong contract.</p>
+          </div>
+        </div>
+        <div class="ex-step">
+          <span class="day">Day 5</span>
+          <div class="body">
+            <span class="run">/bluewright:make-artifact a solution design for the architecture review</span>
+            <p>Grounded in the investigation's record plus global <span class="id-badge">D-001</span>, it writes <code>artifacts/design.md</code> using the solution-design template, plus a context diagram — every claim tracing to a decision or an <code>inputs/</code> source, with the still-open registry-ownership question called out as a risk rather than papered over.</p>
+          </div>
+        </div>
+        <div class="ex-step">
+          <span class="day"></span>
+          <div class="body">
+            <span class="run">/bluewright:promote</span>
+            <p>The webhooks-via-outbox approach held up under review. You promote it: a new global <span class="id-badge">D-002</span> is written to <code>global/decisions.md</code>, linked back to <code>order-webhooks/decisions.md#D-001</code>. The investigation's own entry is untouched — the next team facing a similar problem now has this as official precedent.</p>
           </div>
         </div>
         <div class="ex-step">
           <span class="day">Anytime</span>
           <div class="body">
             <span class="run">/bluewright:status</span>
-            <p>Between all of the above: one screen showing the phase, the top of the to-do list, open questions with blockers first, the latest decisions, and whether anything has gone stale.</p>
+            <p>Between all of the above: a glance at the global record, then one screen for the investigation — status, the top of the to-do list, open questions with blockers first, the latest decisions, and whether anything has gone stale.</p>
           </div>
         </div>
       </section>
 
       <section id="files">
         <h2><span class="num">7</span>The files, explained</h2>
-        <p>You can open and edit any of these by hand — they're plain text, and the formats are documented in the plugin's <code>docs/spec.md</code>. The essentials:</p>
+        <p>You can open and edit any of these by hand — they're plain text, and the formats are documented in the plugin's <code>docs/spec.md</code>. The essentials, identical whether they live in <code>global/</code> or an investigation:</p>
         <div class="files">
           <div class="file"><span class="name">decisions.md</span>
             <p>One entry per decision: context, the choice, its consequences, links to evidence. Append-only — superseding a decision means a new entry pointing back, so the reasoning trail survives. Status moves from <em>proposed</em> to <em>accepted</em> only when you say so.</p></div>
@@ -633,13 +634,11 @@ cd ~/work/my-team
           <div class="file"><span class="name">todo.md</span>
             <p>Four sections: Now, Next, Later, Done. Order inside a section is the priority.</p></div>
           <div class="file"><span class="name">inputs/</span>
-            <p>Anything goes; nothing here is ever shared directly. Captured feedback lands here first, verbatim and dated, before being interpreted.</p></div>
-          <div class="file"><span class="name">spikes/&lt;name&gt;/</span>
-            <p><code>SPIKE.md</code> states the question, success criteria, and time-box up front; <code>VERDICT.md</code> appears only when it concludes. A spike folder without a verdict is, by definition, unfinished business.</p></div>
-          <div class="file"><span class="name">outputs/</span>
-            <p>Fixed names, so every investigation looks alike: <code>brief.md</code>, <code>options.md</code>, <code>design.md</code>, <code>tickets.md</code>, diagrams as <code>.puml</code> with rendered <code>.png</code> beside them, and a <code>README.md</code> reading guide.</p></div>
+            <p>Anything goes; nothing here is ever shared directly. Captured material lands here first, verbatim and dated, before being interpreted.</p></div>
+          <div class="file"><span class="name">artifacts/</span>
+            <p>No fixed filenames — whatever <code>/bluewright:make-artifact</code> was asked to produce: a design doc, diagrams as <code>.puml</code> with rendered <code>.png</code> beside them, a summary, an email draft, anything. This is the only folder ever shared outside the workspace.</p></div>
           <div class="file"><span class="name">sync-log.md</span>
-            <p>One dated section per <code>/sync</code> run — including the quiet ones. Your morning-coffee review of what moved overnight.</p></div>
+            <p>One dated section per <code>/sync</code> run — including the quiet ones. Investigation-scoped only. Your morning-coffee review of what moved overnight.</p></div>
         </div>
       </section>
 
@@ -662,13 +661,13 @@ cd ~/work/my-team
         <div class="rule-card"><h4>Nothing lost, nothing invented</h4>
           <p>Everything you feed in is preserved verbatim before being interpreted. And no command ever records a decision you didn't make — recommendations arrive as <em>proposed</em>, always awaiting your ruling.</p></div>
         <div class="rule-card"><h4>History is append-only</h4>
-          <p>Decision, question, and task IDs are never reused or renumbered. Documents in <code>outputs/</code> regenerate freely; the record they rest on doesn't move.</p></div>
+          <p>Decision, question, and task IDs are never reused or renumbered. Artifacts regenerate freely; the record they rest on doesn't move. Promotion copies, it never rewrites — an investigation's original entry stays exactly as recorded.</p></div>
         <div class="rule-card"><h4>Honest artifacts</h4>
-          <p>Publishing marks stale documents instead of quietly rewriting them, and a spike that proved nothing says "inconclusive" — with evidence either way.</p></div>
+          <p><code>/bluewright:make-artifact</code> flags what the record doesn't actually support instead of inventing to fill the gap, and <code>/bluewright:ask</code> says "not captured yet" rather than guessing.</p></div>
       </section>
 
       <footer>
-        Bluewright v1.0.0 · a Claude Code plugin · formats documented in <span class="mono">docs/spec.md</span>
+        Bluewright v2.0.0 · a Claude Code plugin · formats documented in <span class="mono">docs/spec.md</span>
       </footer>
     </main>
   </div>

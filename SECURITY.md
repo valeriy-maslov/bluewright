@@ -45,26 +45,22 @@ get a straight answer if something slips.
   two version strings: writing files, making network calls, recording prompt content, or
   executing anything it reads from `workspace.yml`. Also: any input that makes it crash in a
   way that blocks every prompt in a session.
-- **Escaping a documented boundary.** Every agent is declared read-only and confined to the
-  investigation folder (or, for `system-surveyor`, to one watched path). A component that
-  writes when it shouldn't, or reads outside its stated boundary, is a bug worth reporting
-  privately.
+- **Escaping a documented boundary.** The one bundled agent, `impact-assessor`, is
+  declared read-only and confined to the investigation folder and the watched repo paths
+  it's given. A component that writes when it shouldn't, or reads outside its stated
+  boundary, is a bug worth reporting privately.
 - **Path traversal.** The hook walks up the directory tree looking for `workspace.yml`, and
   commands write inside the investigation folder. Anything that escapes either — through
   symlinks, crafted paths, or otherwise — is in scope.
 - **Privilege escalation through prompt injection.** Bluewright deliberately feeds untrusted
-  material to Claude: files you drop in `inputs/`, repositories on your watchlist, web pages
-  `option-scout` fetches. If such content can push an agent *past its declared tool list* —
-  a read-only agent running shell commands, or any component exfiltrating file contents —
-  that is a vulnerability.
+  material to Claude: files you drop in `inputs/`, repositories on your watchlist. If such
+  content can push a component *past its declared tool list* — a read-only agent running
+  shell commands, or any component exfiltrating file contents — that is a vulnerability.
 - **Anything in this repository that executes at install time.** There is nothing today, and
   there should never be.
 
 ### Out of scope, by design
 
-- **`/bluewright:spike` runs and installs things.** That is its entire purpose: it is the one
-  sanctioned place for experiments, and every command still goes through Claude Code's own
-  permission prompts. That it can execute code is not a vulnerability.
 - **Prompt injection that only changes what a component says.** Untrusted input can skew a
   digest or bias a recommendation. That is a property of the medium, not a defect we can
   patch away; the mitigations are read-only tool lists and the fact that every artifact
@@ -74,12 +70,13 @@ get a straight answer if something slips.
 
 ### Known considerations
 
-`/bluewright:publish` shells out to PlantUML (and Graphviz) to render `.puml` files.
-PlantUML's `!include` directive can pull in local files and remote URLs, so rendering a
-diagram you did not author carries the usual file-disclosure and SSRF exposure. Diagrams in
-an investigation are normally written by you or by Claude inside that folder — but if you
-ever render a `.puml` from an untrusted source, that is the risk you are taking, and it is
-PlantUML's behaviour rather than something Bluewright can mediate.
+`/bluewright:make-artifact` shells out to PlantUML (and Graphviz) to render `.puml`
+diagrams, the one place any command runs external code. PlantUML's `!include` directive
+can pull in local files and remote URLs, so rendering a diagram you did not author carries
+the usual file-disclosure and SSRF exposure. Diagrams are normally written by you or by
+Claude inside `artifacts/` — but if you ever render a `.puml` from an untrusted source,
+that is the risk you are taking, and it is PlantUML's behaviour rather than something
+Bluewright can mediate.
 
 ## How a fix reaches you
 

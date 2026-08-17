@@ -11,8 +11,28 @@ explicitly when a release changes anything on disk.
 
 ## [Unreleased]
 
+**This release changes the on-disk workspace format** — see below. Requires the major
+version bump this section will carry when it's released as `2.0.0`.
+
 ### Added
 
+- **`global/` tier**: a workspace-wide, official record (`decisions.md`, `questions.md`,
+  `todo.md`, `inputs/`, `artifacts/`) alongside every investigation's own, not-yet-official
+  one. Created by `/bluewright:init`.
+- `/bluewright:capture-global` — the triage inbox for `global/`, mirroring
+  `/bluewright:capture` but workspace-scoped.
+- `/bluewright:promote` — copies selected decisions/questions/TODOs from an investigation
+  into `global/`, with a back-reference to the source; never edits or removes the
+  investigation's original entry.
+- `/bluewright:ask` — read-only, interactive analysis over the captured record (global +
+  active investigation), citing sources and saying "not captured yet" rather than
+  inventing.
+- `/bluewright:make-artifact` — produces any shareable artifact (doc, diagram, wiki page,
+  email, summary, presentation outline, ...) from the captured record, replacing the fixed
+  brief/options/design/tickets outputs with an open-ended one.
+- `question-todo-triage` skill: a guided, deduped conversation for turning captured
+  material into `questions.md`/`todo.md` entries, used by both capture commands — replaces
+  auto-filing every inferable question or TODO.
 - Changelog-driven releases: pushing a new version section to `master` tags the commit
   and publishes a GitHub release with that section as the notes
   (`.github/workflows/release.yml`). Repository tooling only — nothing changes for
@@ -25,6 +45,33 @@ explicitly when a release changes anything on disk.
   enabled on the repository: how to report, what counts as a vulnerability in a plugin made
   of prompts, and what is deliberate. Documentation only — nothing changes for installed
   plugins or existing workspaces.
+
+### Changed
+
+- **Workspace format, breaking**: `investigation.yml`'s `phase` field is replaced by
+  `status: active | closed`; `outputs/` is renamed `artifacts/` and no longer has a fixed
+  filename list; `spikes/` is dropped; the FR/NFR/C requirements-ID scheme is dropped (it
+  only existed to serve `/bluewright:brief`).
+- `/bluewright:capture` now facilitates questions/TODOs through the
+  `question-todo-triage` skill instead of filing every item it can infer, and its
+  contradiction check now also compares against accepted `global/decisions.md` entries.
+- `/bluewright:status` drops the phase/design-gate and spike-verdict flags, adds a
+  one-line global-record glance, and its staleness flag now points at
+  `/bluewright:make-artifact`.
+- `decision-entry`, `solution-design`, and `plantuml-conventions` skills are reframed:
+  `decision-entry` now targets either `global/` or an investigation's `decisions.md`;
+  `solution-design` and `plantuml-conventions` are optional templates
+  `/bluewright:make-artifact` loads on request, rather than being tied to a specific
+  removed command.
+
+### Removed
+
+- **Commands**: `/bluewright:brief`, `/bluewright:options`, `/bluewright:spike`,
+  `/bluewright:publish`, `/bluewright:design` — replaced by capture-first workflow plus
+  `/bluewright:ask` and `/bluewright:make-artifact`.
+- **Agents**: `requirements-analyst`, `system-surveyor`, `option-scout`, `doc-builder` —
+  they existed only to serve the removed commands. `impact-assessor` (used by
+  `/bluewright:sync`) stays.
 
 ## [1.0.0] — 2026-08-06
 

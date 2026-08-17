@@ -1,5 +1,5 @@
 ---
-description: Create a Bluewright workspace (workspace.yml + KNOWLEDGE.md) at the given path
+description: Create a Bluewright workspace (workspace.yml + KNOWLEDGE.md + global/) at the given path
 argument-hint: [path to workspace folder]
 allowed-tools: Read, Write, Glob, Bash, AskUserQuestion
 ---
@@ -36,11 +36,16 @@ Target path: `$ARGUMENTS`
    per the spec, with today's date and the interview answers. Set the
    `bluewright` field to the installed plugin version — read it from
    `${CLAUDE_PLUGIN_ROOT}/.claude-plugin/plugin.json`; never hardcode it.
-5. **Git.** If the target is not inside a git repository
+5. **Scaffold `global/`** — the workspace's official, workspace-wide record:
+   `decisions.md`, `questions.md`, `todo.md` seeded with their headers and
+   no entries, plus `inputs/` and `artifacts/` (each with a `.gitkeep`).
+6. **Git.** If the target is not inside a git repository
    (`git rev-parse --git-dir` fails there), run `git init` in it. Do not
    commit — leave that to the user.
-6. **Report.** Show the created layout, and point to the next step:
-   `cd` into the workspace and run `/bluewright:new <feature-slug>`.
+7. **Report.** Show the created layout, and point to the next steps: `cd`
+   into the workspace, optionally run `/bluewright:capture-global` to record
+   anything already known workspace-wide, then `/bluewright:new
+   <feature-slug>` for the first investigation.
 
 ## Rules
 

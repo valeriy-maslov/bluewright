@@ -1,19 +1,19 @@
 ---
 name: plantuml-conventions
-description: Diagram conventions for Bluewright outputs — C4 levels, PlantUML style, file naming, and rendering rules — so every diagram across all investigations looks like one hand drew it. Use whenever creating or editing a .puml diagram in an investigation's outputs/.
+description: Diagram conventions for Bluewright artifacts — C4 levels, PlantUML style, file naming, and rendering rules — so every diagram across all investigations looks like one hand drew it. Use from /bluewright:make-artifact whenever the ask involves a diagram, in an investigation's or global's artifacts/.
 ---
 
 # Diagram conventions
 
 ## Files
 
-- One diagram per `.puml` file, in `outputs/`, kebab-case, prefixed by its
+- One diagram per `.puml` file, in `artifacts/`, kebab-case, prefixed by its
   C4 level: `context-payments.puml`, `container-payments.puml`,
   `component-ledger-adapter.puml`, `sequence-refund-flow.puml`.
 - The rendered `.png` sits next to its `.puml`, same basename (produced by
-  `/publish` — never hand-edit a rendered file).
+  `/bluewright:make-artifact` — never hand-edit a rendered file).
 - Documents reference the `.png` (relative link), never the `.puml`, so
-  `outputs/` reads correctly on any markdown viewer.
+  `artifacts/` reads correctly on any markdown viewer.
 
 ## C4 discipline
 

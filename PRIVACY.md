@@ -45,22 +45,14 @@ It is a single file of about 120 lines, importing nothing beyond `json`, `os`, `
 ## Network access
 
 Bluewright makes no network calls of its own. It bundles no MCP server and holds no
-credentials for anything.
+credentials for anything. No command reaches the general internet by default — none of the
+bundled commands or agents carries `WebFetch`/`WebSearch` in its tool list.
 
-Two components can reach the internet, both through Claude Code's own `WebFetch` and
-`WebSearch` tools, under the permissions you have already granted it:
-
-- [`agents/option-scout.md`](agents/option-scout.md) — researches a candidate during
-  `/bluewright:options`.
-- [`commands/spike.md`](commands/spike.md) — the sanctioned place for experiments, which
-  also installs and runs things by design (see [`SECURITY.md`](SECURITY.md) § Scope).
-
-Both run only because you invoked the command that dispatches them.
-
-`/bluewright:sync` checks your watchlist. Repository entries are local clones it inspects
-with git. Jira and Confluence entries use MCP tools **if you have configured those servers
-yourself**; if you have not, the entry is marked `skipped: no Jira access` and nothing is
-contacted.
+The one command that touches the network is `/bluewright:sync`, and only for watchlist
+entries you configured. Repository entries are local clones it inspects with git. Jira and
+Confluence entries use MCP tools **if you have configured those servers yourself**; if you
+have not, the entry is marked `skipped: no Jira access` and nothing is contacted. It runs
+only because you invoked it (or scheduled it).
 
 ## What you put in
 
