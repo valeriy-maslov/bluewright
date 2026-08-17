@@ -33,6 +33,10 @@ version bump this section will carry when it's released as `2.0.0`.
 - `question-todo-triage` skill: a guided, deduped conversation for turning captured
   material into `questions.md`/`todo.md` entries, used by both capture commands — replaces
   auto-filing every inferable question or TODO.
+- `/bluewright:migrate` — brings a 1.x workspace's on-disk format up to date (scaffolds
+  `global/`, renames `outputs/` to `artifacts/`, converts `phase` to `status` per
+  investigation). Additive and renames only, never deletes data; exempt from the version
+  hook's block for exactly this reason. See `docs/spec.md` § Migrating from 1.x.
 - Changelog-driven releases: pushing a new version section to `master` tags the commit
   and publishes a GitHub release with that section as the notes
   (`.github/workflows/release.yml`). Repository tooling only — nothing changes for

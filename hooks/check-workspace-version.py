@@ -2,8 +2,9 @@
 """UserPromptSubmit hook: enforce plugin/workspace version compatibility.
 
 Fires on every prompt; does nothing unless the prompt invokes a
-/bluewright:* command (except /bluewright:init, which creates workspaces
-and needs no compatibility check).
+/bluewright:* command (except /bluewright:init, which creates workspaces,
+and /bluewright:migrate, which exists specifically to run against an
+out-of-date one — neither needs the compatibility check).
 
 Rules (see docs/spec.md, "Versioning"):
   - workspace newer than plugin          -> BLOCK (exit 2): update the plugin
@@ -62,7 +63,7 @@ def main():
         return 0  # malformed input: never break the prompt over the hook itself
 
     m = COMMAND_RE.match(payload.get("prompt", ""))
-    if not m or m.group("cmd") == "init":
+    if not m or m.group("cmd") in ("init", "migrate"):
         return 0
 
     marker = find_workspace(payload.get("cwd") or os.getcwd())

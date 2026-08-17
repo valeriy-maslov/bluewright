@@ -44,6 +44,7 @@ into something you can hand to someone.
 |---|---|
 | `/bluewright:init <path>` | Creates a workspace: `workspace.yml`, `KNOWLEDGE.md`, `global/`, git init. Asks for team defaults; refuses to nest inside another workspace. |
 | `/bluewright:new <slug>` | Creates one investigation: the folder structure, the four living files, and your kickoff answers preserved in `inputs/00-intake.md`. |
+| `/bluewright:migrate` | Brings an older workspace's on-disk format up to date with the installed plugin (e.g. scaffolding `global/`, renaming `outputs/` to `artifacts/`). Additive and renames only — never deletes data. The version hook points here whenever it blocks a command over a format mismatch. |
 
 **Capturing**
 
@@ -99,8 +100,9 @@ bluewright: "2.0.0"
 
 A `UserPromptSubmit` hook compares that against the installed plugin on every
 `/bluewright:*` command and blocks when the workspace is newer than the plugin, or when a
-major-version format change needs a migration. See
-[`docs/spec.md`](docs/spec.md) § Versioning.
+major-version format change needs a migration — run `/bluewright:migrate` when that
+happens; it's exempt from the same check so it can run against the out-of-date workspace.
+See [`docs/spec.md`](docs/spec.md) § Versioning and § Migrating from 1.x.
 
 ## Local development
 

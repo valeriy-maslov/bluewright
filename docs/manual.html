@@ -651,7 +651,7 @@ cd ~/work/my-team
           <li>It never rewrites your decisions. A broken assumption becomes a flagged question; the re-ruling is yours.</li>
         </ul>
         <div class="tip"><span class="t">Versions are checked for you</span>
-        Each workspace records the plugin version that created it. A built-in hook checks compatibility on every command — if the plugin is too old for the workspace (or vice versa), you get a clear stop instead of quiet file corruption.</div>
+        Each workspace records the plugin version that created it. A built-in hook checks compatibility on every command — if the plugin is too old for the workspace, it stops and tells you to update; if the workspace's format predates the plugin, it stops and points you at <code>/bluewright:migrate</code>, which is exempt from the check for exactly that reason. Either way you get a clear stop instead of quiet file corruption.</div>
       </section>
 
       <section id="rules">

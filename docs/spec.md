@@ -223,20 +223,37 @@ across investigations belong in `global/`, not here.
 last migrated the workspace. Commands read it when resolving the workspace:
 
 - same version as the installed plugin → proceed;
-- older version → proceed if formats are compatible, but mention that a
-  future `/bluewright:migrate` can bring the workspace up to date; if the
-  spec has had a breaking change since that version, stop and say migration
-  is required before continuing;
+- older version, same major → proceed, formats are compatible, but mention
+  that `/bluewright:migrate` can bring the recorded version fully current;
+- older version, different major → stop and say `/bluewright:migrate` is
+  required before continuing;
 - newer version → stop; the installed plugin is older than the workspace —
   update the plugin.
 
-Only `/bluewright:init` (and a future migrate command) may write this field.
+Only `/bluewright:init` and `/bluewright:migrate` may write this field.
 
 Enforcement is deterministic: the plugin's `UserPromptSubmit` hook
 (`hooks/check-workspace-version.py`) runs on every `/bluewright:*` prompt
-(except `init`), compares `bluewright` with the installed plugin version, and
-blocks the command on incompatibility. Commands therefore do not need to
-re-check versions themselves.
+(except `init` and `migrate` — the latter exists specifically to run
+against an out-of-date workspace), compares `bluewright` with the installed
+plugin version, and blocks the command on incompatibility. Commands
+therefore do not need to re-check versions themselves.
+
+## Migrating from 1.x
+
+`/bluewright:migrate` follows this mapping exactly; it is additive and
+renames only — no decision, question, TODO, or input is ever touched.
+
+| 1.x | 2.x |
+|---|---|
+| `outputs/` (per investigation) | renamed `artifacts/`; no more fixed filenames inside it |
+| `investigation.yml`: `phase: frame\|options\|spike\|share\|design` | `status: active` |
+| `investigation.yml`: `phase: done` | `status: closed` |
+| `spikes/<name>/` | left in place, untouched — no longer part of the managed layout, but its `SPIKE.md`/`VERDICT.md`/code stay as investigation history |
+| *(new)* | `global/` scaffolded at the workspace root (same as `/bluewright:init` creates for a new workspace) |
+
+`decisions.md`, `questions.md`, `todo.md`, and `sync-log.md` formats are
+unchanged between 1.x and 2.x — nothing about them needs migrating.
 
 ## Conventions
 
