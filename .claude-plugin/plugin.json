@@ -1,7 +1,7 @@
 {
   "name": "bluewright",
-  "version": "2.0.0",
-  "description": "Feature-investigation workspaces: requirements analysis, option comparison, spikes/PoCs, and shareable solution designs",
+  "version": "3.0.0",
+  "description": "Capture-first investigation workspaces: an official global record plus per-investigation capture, interactive analysis, and on-demand artifacts",
   "author": {
     "name": "Valeriy Maslov",
     "email": "valeriy.maslov.dev@gmail.com"
@@ -9,5 +9,5 @@
   "homepage": "https://github.com/valeriy-maslov/bluewright",
   "repository": "https://github.com/valeriy-maslov/bluewright",
   "license": "MIT",
-  "keywords": ["investigation", "solution-design", "architecture"]
+  "keywords": ["investigation", "knowledge-capture", "architecture"]
 }

@@ -10,7 +10,7 @@
     {
       "name": "bluewright",
       "source": "./",
-      "description": "Feature-investigation workspaces: requirements analysis, option comparison, spikes/PoCs, and shareable solution designs"
+      "description": "Capture-first investigation workspaces: an official global record plus per-investigation capture, interactive analysis, and on-demand artifacts"
     }
   ]
 }

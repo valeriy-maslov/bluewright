@@ -11,6 +11,88 @@ explicitly when a release changes anything on disk.
 
 ## [Unreleased]
 
+**This release changes the on-disk workspace format** — see below. Requires the major
+version bump this section will carry when it's released as `3.0.0`. It also replaces the
+altitude/parking mechanism `2.0.0` shipped days earlier with a different answer to the same
+problem — see the note under Removed.
+
+### Added
+
+- **`global/` tier**: a workspace-wide, official record (`decisions.md`, `questions.md`,
+  `todo.md`, `inputs/`, `artifacts/`) alongside every investigation's own, not-yet-official
+  one. Created by `/bluewright:init`.
+- `/bluewright:capture-global` — the triage inbox for `global/`, mirroring
+  `/bluewright:capture` but workspace-scoped.
+- `/bluewright:promote` — copies selected decisions/questions/TODOs from an investigation
+  into `global/`, with a back-reference to the source; never edits or removes the
+  investigation's original entry.
+- `/bluewright:ask` — read-only, interactive analysis over the captured record (global +
+  active investigation), citing sources and saying "not captured yet" rather than
+  inventing.
+- `/bluewright:make-artifact` — produces any shareable artifact (doc, diagram, wiki page,
+  email, summary, presentation outline, ...) from the captured record, replacing the fixed
+  brief/options/design/tickets outputs with an open-ended one.
+- `question-todo-triage` skill: a guided, deduped conversation for turning captured
+  material into `questions.md`/`todo.md` entries, used by both capture commands — replaces
+  auto-filing every inferable question or TODO.
+- `/bluewright:migrate` — brings an older workspace's on-disk format up to date (scaffolds
+  `global/`, renames `outputs/` to `artifacts/`, converts `phase` to `status` per
+  investigation, and flattens `2.0.0`'s `Active`/`Parked`/`Closed` structure back to a plain
+  list where applicable). Additive and renames only, never deletes data; exempt from the
+  version hook's block for exactly this reason; requires a clean git tree and never commits,
+  so `git diff`/`git revert` are the review and undo. See `docs/spec.md` § Migrating to 3.x.
+- Changelog-driven releases: pushing a new version section to `master` tags the commit
+  and publishes a GitHub release with that section as the notes
+  (`.github/workflows/release.yml`). Repository tooling only — nothing changes for
+  installed plugins or existing workspaces.
+- Privacy and data-handling statement ([`PRIVACY.md`](PRIVACY.md)): what the plugin
+  collects (nothing), what the `UserPromptSubmit` hook does with each prompt, and which
+  components can reach the network. Documentation only — nothing changes for installed
+  plugins or existing workspaces.
+- Security policy ([`SECURITY.md`](SECURITY.md)) with private vulnerability reporting
+  enabled on the repository: how to report, what counts as a vulnerability in a plugin made
+  of prompts, and what is deliberate. Documentation only — nothing changes for installed
+  plugins or existing workspaces.
+
+### Changed
+
+- **Workspace format, breaking**: `investigation.yml`'s `phase` field is replaced by
+  `status: active | closed`; `outputs/` is renamed `artifacts/` and no longer has a fixed
+  filename list; `spikes/` is dropped; the FR/NFR/C requirements-ID scheme is dropped (it
+  only existed to serve `/bluewright:brief`); `questions.md`/`todo.md` drop `2.0.0`'s
+  `Active`/`Parked`/`Closed` sections and `Level:` field in favor of a single flat list —
+  see Removed.
+- `/bluewright:capture` now facilitates questions/TODOs through the
+  `question-todo-triage` skill instead of filing every item it can infer, and its
+  contradiction check now also compares against accepted `global/decisions.md` entries.
+- `/bluewright:status` drops the phase/design-gate and spike-verdict flags, adds a
+  one-line global-record glance, and its staleness flag now points at
+  `/bluewright:make-artifact`.
+- `decision-entry`, `solution-design`, and `plantuml-conventions` skills are reframed:
+  `decision-entry` now targets either `global/` or an investigation's `decisions.md`;
+  `solution-design` and `plantuml-conventions` are optional templates
+  `/bluewright:make-artifact` loads on request, rather than being tied to a specific
+  removed command.
+- The version hook (`hooks/check-workspace-version.py`) now exempts `/bluewright:migrate`
+  alongside `/bluewright:init`, and names the command in its messages.
+
+### Removed
+
+- **Commands**: `/bluewright:brief`, `/bluewright:options`, `/bluewright:spike`,
+  `/bluewright:publish`, `/bluewright:design` — replaced by capture-first workflow plus
+  `/bluewright:ask` and `/bluewright:make-artifact`.
+- **Agents**: `requirements-analyst`, `system-surveyor`, `option-scout`, `doc-builder` —
+  they existed only to serve the removed commands. `impact-assessor` (used by
+  `/bluewright:sync`) stays.
+- **`2.0.0`'s altitude/parking mechanism**: `/bluewright:groom`, the `item-triage` skill,
+  the `Level` field, and the `Active`/`Parked`/`Closed` question/TODO sections. That release
+  solved the same problem this one does — an investigation accumulating more questions and
+  TODOs than anyone could act on — by classifying and hiding items after the fact. This
+  release solves it earlier instead, at capture time, via `question-todo-triage`'s guided
+  conversation, and removes the after-the-fact machinery rather than running both. Nothing
+  from a `2.0.0` workspace is lost: `/bluewright:migrate` folds `Active` and `Parked` entries
+  back into the flat list.
+
 ## [2.0.0] — 2026-08-07
 
 **This release changes files on disk and requires a migration.** Run
@@ -37,18 +119,6 @@ or deleted.
 - **`/bluewright:migrate`** — converts a whole workspace to the installed plugin's format,
   runs the groom pass per investigation, and records the new version in `workspace.yml`.
   Requires a clean git tree, and never commits.
-- Changelog-driven releases: pushing a new version section to `master` tags the commit
-  and publishes a GitHub release with that section as the notes
-  (`.github/workflows/release.yml`). Repository tooling only — nothing changes for
-  installed plugins or existing workspaces.
-- Privacy and data-handling statement ([`PRIVACY.md`](PRIVACY.md)): what the plugin
-  collects (nothing), what the `UserPromptSubmit` hook does with each prompt, and which
-  components can reach the network. Documentation only — nothing changes for installed
-  plugins or existing workspaces.
-- Security policy ([`SECURITY.md`](SECURITY.md)) with private vulnerability reporting
-  enabled on the repository: how to report, what counts as a vulnerability in a plugin made
-  of prompts, and what is deliberate. Documentation only — nothing changes for installed
-  plugins or existing workspaces.
 
 ### Changed
 

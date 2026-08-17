@@ -58,9 +58,10 @@ thing, so write it for that job: say what it does, when it's dispatched, and wha
 returns.
 
 **Least privilege.** Give a command or agent only the tools it actually needs. Read-only
-commands (`/bluewright:status`) must stay read-only. Agents get `Bash` for inspection
-only — `git log`, `ls`, `grep`, scoped to their target. `/bluewright:spike` is the single
-place where installing and running things is allowed; keep it that way.
+commands (`/bluewright:status`, `/bluewright:ask`) must stay read-only. Agents get `Bash`
+for inspection only — `git log`, `ls`, `grep`, scoped to their target. No command installs
+or runs arbitrary code; `/bluewright:make-artifact` shelling out to a deterministic local
+PlantUML renderer is the one exception, and it stays that narrow.
 
 **Stay inside the workspace.** Per the spec's boundary rule, commands read and write only
 within the workspace tree, with two exceptions: watchlist paths the user configured, and
@@ -177,8 +178,8 @@ pre-release automatically.
 ## Pull requests
 
 - Branch off `master` and keep the pull request focused on one change.
-- Write commit subjects in the imperative mood (`add spike verdict template`, not
-  `added…`), under ~72 characters, with the reasoning in the body when it isn't obvious.
+- Write commit subjects in the imperative mood (`add promote command`, not `added…`),
+  under ~72 characters, with the reasoning in the body when it isn't obvious.
 - In the description, say what you ran to check it — the validate output and which command
   you exercised on a scratch workspace.
 - Bump the plugin version in the same pull request when the change warrants one, per the

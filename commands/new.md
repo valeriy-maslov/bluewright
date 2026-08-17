@@ -1,5 +1,5 @@
 ---
-description: Bootstrap a new investigation (spine files, inputs/, spikes/, outputs/) in the current workspace
+description: Bootstrap a new investigation (spine files, inputs/, artifacts/) in the current workspace
 argument-hint: [feature-slug]
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash, AskUserQuestion
 ---
@@ -32,32 +32,32 @@ Requested slug: `$ARGUMENTS`
    AskUserQuestion for genuine multiple-choice moments (e.g. picking among
    existing investigations).
 4. **Create the investigation** per the spec:
-   - `investigation.yml` — phase `frame`, today's date, links and watchlist
-     from the interview (workspace defaults are NOT copied in; they are merged
-     at read time);
+   - `investigation.yml` — status `active`, today's date, links and
+     watchlist from the interview (workspace defaults are NOT copied in;
+     they are merged at read time);
    - `decisions.md`, `questions.md`, `todo.md` — seeded with their headers,
      empty sections, and no entries;
    - `inputs/00-intake.md` — the goal statement and everything else the user
      provided during the interview, verbatim, so nothing said at creation
      time is lost;
-   - `inputs/`, `spikes/`, `outputs/` folders (add `.gitkeep` to the empty
-     ones).
+   - `inputs/`, `artifacts/` folders (add `.gitkeep` to the empty ones).
 5. **Seed `todo.md`** with the obvious first tasks in **Now**, e.g.
-   `T-001 — collect requirements and materials into inputs/  (level: frame)`
-   and `T-002 — run /bluewright:brief  (level: frame)`. If the interview
-   surfaced an unknown worth deciding, add it to `questions.md` as `Q-001`
-   instead of losing it — with its `Level:`, and in `## Parked` if it sits
-   below `frame` (a new investigation is at the top of the ladder, so most
-   opening unknowns that aren't about scope belong there).
+   `T-001 — collect requirements and materials into inputs/` and
+   `T-002 — once there's material, run /bluewright:ask to explore it or
+   /bluewright:make-artifact to produce something from it`. If the
+   interview surfaced an unknown worth deciding, add it to `questions.md`
+   as `Q-001` instead of losing it.
 6. **Index.** Append the investigation's line to the workspace `KNOWLEDGE.md`
    under **Investigations**, per the spec format.
 7. **Report.** Show the created tree and the immediate next steps: drop
-   materials into `inputs/`, then run `/bluewright:brief`.
+   materials into `inputs/`, use `/bluewright:capture` for anything else
+   that comes in, then `/bluewright:ask` or `/bluewright:make-artifact`
+   when there's enough to work with.
 
 ## Rules
 
 - Touch nothing outside the workspace tree.
 - Never overwrite existing files.
-- Do not invent content: requirements analysis belongs to `/bluewright:brief`,
-  not here. This command only creates the container and records what the user
-  said.
+- Do not invent content: analysis belongs to `/bluewright:capture` and
+  `/bluewright:ask`, not here. This command only creates the container and
+  records what the user said.

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """UserPromptSubmit hook: enforce plugin/workspace version compatibility.
 
-Fires on every prompt; does nothing unless the prompt invokes a
 /bluewright:* command. Two commands are exempt: /bluewright:init, which
 creates workspaces and has nothing to compare against, and
 /bluewright:migrate, which is the remedy for the blocks below and must stay
