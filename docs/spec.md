@@ -68,7 +68,7 @@ understand its contents.
 
 ```yaml
 name: acme-platform             # short workspace name
-bluewright: "2.0.0"            # plugin version that created / last migrated
+bluewright: "3.0.0"            # plugin version that created / last migrated
                                 #   this workspace; used to detect breaking
                                 #   format changes and drive future migrations
 team: ""                        # optional: owning team/product
@@ -239,12 +239,18 @@ against an out-of-date workspace), compares `bluewright` with the installed
 plugin version, and blocks the command on incompatibility. Commands
 therefore do not need to re-check versions themselves.
 
-## Migrating from 1.x
+## Migrating to 3.x
 
 `/bluewright:migrate` follows this mapping exactly; it is additive and
-renames only — no decision, question, TODO, or input is ever touched.
+renames only — no decision, question, TODO, or input is ever deleted.
+Requires a clean git tree (so `git diff` is the review and `git revert` is
+the undo) and never commits.
 
-| 1.x | 2.x |
+The folder-level and `investigation.yml` changes are the same regardless of
+whether the workspace is at `1.x` or the released `2.0.0` — both predate
+`global/`, both still use `phase`, both still have `outputs/` and `spikes/`:
+
+| 1.x / 2.0.0 | 3.x |
 |---|---|
 | `outputs/` (per investigation) | renamed `artifacts/`; no more fixed filenames inside it |
 | `investigation.yml`: `phase: frame\|options\|spike\|share\|design` | `status: active` |
@@ -252,8 +258,27 @@ renames only — no decision, question, TODO, or input is ever touched.
 | `spikes/<name>/` | left in place, untouched — no longer part of the managed layout, but its `SPIKE.md`/`VERDICT.md`/code stay as investigation history |
 | *(new)* | `global/` scaffolded at the workspace root (same as `/bluewright:init` creates for a new workspace) |
 
-`decisions.md`, `questions.md`, `todo.md`, and `sync-log.md` formats are
-unchanged between 1.x and 2.x — nothing about them needs migrating.
+`decisions.md` and `sync-log.md` formats are unchanged across every version
+— nothing about them needs migrating.
+
+`questions.md` and `todo.md` need an extra, version-conditional step **only
+coming from `2.0.0`**, which shipped the altitude/parking mechanism this
+release removes (see `CHANGELOG.md`). A `1.x` workspace's `questions.md`/
+`todo.md` already matches `3.x`'s plain-list shape and needs nothing here.
+
+| `2.0.0` | 3.x |
+|---|---|
+| `questions.md`: `## Active` / `## Parked` / `## Closed` section headers | removed; entries flatten into one list, in that order (Active, then Parked, then Closed) |
+| `questions.md`: entries at `### Q-00X` | re-headed to `## Q-00X` (3.x's entry level) |
+| `questions.md`: `Status: parked` | `Status: open` (3.x has no `parked` — a flattened item is simply open again) |
+| `questions.md`: `Status: merged` | `Status: dropped`; any `Merged into:` / `**Evidence:**` lines stay in the entry as extra history, unparsed but not deleted |
+| `questions.md`: `Level:` field | left in place, unparsed — harmless, not part of `3.x`'s schema, but removing it would be a deletion this command doesn't do |
+| `todo.md`: `## Parked` section | folded into `## Later`, appended after its existing items, order preserved |
+| `todo.md`: `(level: …)` suffix | left in place, unparsed, same reasoning as `Level:` above |
+
+Nothing from a `2.0.0` workspace is lost in this flattening — every ID,
+every piece of evidence, every closed/merged entry survives; only the
+altitude bookkeeping stops being load-bearing.
 
 ## Conventions
 

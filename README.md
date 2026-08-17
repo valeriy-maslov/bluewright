@@ -95,14 +95,18 @@ bluewright/
 Each workspace records the plugin version that created it in `workspace.yml`:
 
 ```yaml
-bluewright: "2.0.0"
+bluewright: "3.0.0"
 ```
 
 A `UserPromptSubmit` hook compares that against the installed plugin on every
 `/bluewright:*` command and blocks when the workspace is newer than the plugin, or when a
-major-version format change needs a migration — run `/bluewright:migrate` when that
-happens; it's exempt from the same check so it can run against the out-of-date workspace.
-See [`docs/spec.md`](docs/spec.md) § Versioning and § Migrating from 1.x.
+major-version format change needs a migration. `/bluewright:init` and `/bluewright:migrate`
+are exempt — migration has to stay reachable in the workspaces the block applies to. See
+[`docs/spec.md`](docs/spec.md) § Versioning and § Migrating to 3.x.
+
+Upgrading across a major version means running `/bluewright:migrate` once per workspace. It
+converts every investigation in place, preserves every `Q-###` and `T-###`, requires a clean
+git tree, and never commits — so `git diff` is the review and `git revert` is the undo.
 
 ## Local development
 

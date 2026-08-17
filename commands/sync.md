@@ -46,8 +46,9 @@ Argument: `$ARGUMENTS`
    - `answers` a Q-### → record the answer with the evidence reference;
    - `informs` → a `todo.md` entry or a watchlist `note` update, whichever
      fits;
-   - update `KNOWLEDGE.md` Systems section for facts other investigations
-     would care about.
+   - a fact other investigations would care about → note it in your report
+     and suggest `/bluewright:promote` or `/bluewright:capture-global` rather
+     than writing to `global/` yourself.
 6. **Record.** Append the run section to `sync-log.md` per the spec (per
    entry: change counts + skips; impact one-liners with IDs raised), then
    set `sync.last_run` to now. `/sync` is the only writer of both.

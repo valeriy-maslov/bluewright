@@ -1,17 +1,18 @@
 #!/usr/bin/env python3
 """UserPromptSubmit hook: enforce plugin/workspace version compatibility.
 
-Fires on every prompt; does nothing unless the prompt invokes a
-/bluewright:* command (except /bluewright:init, which creates workspaces,
-and /bluewright:migrate, which exists specifically to run against an
-out-of-date one — neither needs the compatibility check).
+/bluewright:* command. Two commands are exempt: /bluewright:init, which
+creates workspaces and has nothing to compare against, and
+/bluewright:migrate, which is the remedy for the blocks below and must stay
+reachable in exactly the workspaces they stop.
 
 Rules (see docs/spec.md, "Versioning"):
   - workspace newer than plugin          -> BLOCK (exit 2): update the plugin
-  - workspace older, different MAJOR     -> BLOCK (exit 2): migration required
+  - workspace older, different MAJOR     -> BLOCK (exit 2): run /bluewright:migrate
   - workspace older, same major          -> allow, add a context note (stdout)
   - bluewright field missing             -> allow, add a context note (stdout)
   - equal versions / not in a workspace  -> allow, silent
+  - /bluewright:init, /bluewright:migrate -> allow, silent, always
 """
 
 import json
@@ -20,6 +21,7 @@ import re
 import sys
 
 COMMAND_RE = re.compile(r"^\s*/bluewright:(?P<cmd>[a-z-]+)\b")
+EXEMPT_COMMANDS = frozenset({"init", "migrate"})
 VERSION_RE = re.compile(r"^bluewright:\s*[\"']?(\d+\.\d+\.\d+)[\"']?\s*$")
 
 
@@ -63,7 +65,7 @@ def main():
         return 0  # malformed input: never break the prompt over the hook itself
 
     m = COMMAND_RE.match(payload.get("prompt", ""))
-    if not m or m.group("cmd") in ("init", "migrate"):
+    if not m or m.group("cmd") in EXEMPT_COMMANDS:
         return 0
 
     marker = find_workspace(payload.get("cwd") or os.getcwd())
@@ -101,16 +103,17 @@ def main():
     if ws[0] != plug[0]:
         print(
             f"Bluewright: this workspace uses format v{ws_s}; installed "
-            f"plugin v{plug_s} has a breaking format change. Migrate the "
-            "workspace before continuing.",
+            f"plugin v{plug_s} has a breaking format change. Run "
+            "/bluewright:migrate to bring the workspace up to date, then "
+            "retry.",
             file=sys.stderr,
         )
         return 2
 
     print(
         f"Note: this Bluewright workspace was created with plugin v{ws_s}; "
-        f"v{plug_s} is installed (compatible). A workspace migration can "
-        "update the recorded version."
+        f"v{plug_s} is installed (compatible). /bluewright:migrate can update "
+        "the recorded version."
     )
     return 0
 

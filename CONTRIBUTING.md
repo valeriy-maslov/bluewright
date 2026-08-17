@@ -108,6 +108,15 @@ There is no automated test suite; validation is a manifest check plus a real run
    at all. The hook must never break a prompt because of its own failure — malformed input
    and unreadable manifests exit `0`.
 
+   One case is load-bearing and easy to break: **`/bluewright:migrate` must exit `0` in a
+   workspace with a major-version gap**, where everything else exits `2`. It is the remedy
+   for that block, so blocking it locks the user out with no way forward.
+
+   ```bash
+   echo '{"prompt":"/bluewright:migrate","cwd":"/path/to/an/old/workspace"}' \
+     | ./hooks/check-workspace-version.py; echo "exit=$?"   # must be 0
+   ```
+
 3. **Smoke-test the change against a scratch workspace:**
 
    ```

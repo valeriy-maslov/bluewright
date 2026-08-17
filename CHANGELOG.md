@@ -12,7 +12,9 @@ explicitly when a release changes anything on disk.
 ## [Unreleased]
 
 **This release changes the on-disk workspace format** — see below. Requires the major
-version bump this section will carry when it's released as `2.0.0`.
+version bump this section will carry when it's released as `3.0.0`. It also replaces the
+altitude/parking mechanism `2.0.0` shipped days earlier with a different answer to the same
+problem — see the note under Removed.
 
 ### Added
 
@@ -33,10 +35,12 @@ version bump this section will carry when it's released as `2.0.0`.
 - `question-todo-triage` skill: a guided, deduped conversation for turning captured
   material into `questions.md`/`todo.md` entries, used by both capture commands — replaces
   auto-filing every inferable question or TODO.
-- `/bluewright:migrate` — brings a 1.x workspace's on-disk format up to date (scaffolds
+- `/bluewright:migrate` — brings an older workspace's on-disk format up to date (scaffolds
   `global/`, renames `outputs/` to `artifacts/`, converts `phase` to `status` per
-  investigation). Additive and renames only, never deletes data; exempt from the version
-  hook's block for exactly this reason. See `docs/spec.md` § Migrating from 1.x.
+  investigation, and flattens `2.0.0`'s `Active`/`Parked`/`Closed` structure back to a plain
+  list where applicable). Additive and renames only, never deletes data; exempt from the
+  version hook's block for exactly this reason; requires a clean git tree and never commits,
+  so `git diff`/`git revert` are the review and undo. See `docs/spec.md` § Migrating to 3.x.
 - Changelog-driven releases: pushing a new version section to `master` tags the commit
   and publishes a GitHub release with that section as the notes
   (`.github/workflows/release.yml`). Repository tooling only — nothing changes for
@@ -55,7 +59,9 @@ version bump this section will carry when it's released as `2.0.0`.
 - **Workspace format, breaking**: `investigation.yml`'s `phase` field is replaced by
   `status: active | closed`; `outputs/` is renamed `artifacts/` and no longer has a fixed
   filename list; `spikes/` is dropped; the FR/NFR/C requirements-ID scheme is dropped (it
-  only existed to serve `/bluewright:brief`).
+  only existed to serve `/bluewright:brief`); `questions.md`/`todo.md` drop `2.0.0`'s
+  `Active`/`Parked`/`Closed` sections and `Level:` field in favor of a single flat list —
+  see Removed.
 - `/bluewright:capture` now facilitates questions/TODOs through the
   `question-todo-triage` skill instead of filing every item it can infer, and its
   contradiction check now also compares against accepted `global/decisions.md` entries.
@@ -67,6 +73,8 @@ version bump this section will carry when it's released as `2.0.0`.
   `solution-design` and `plantuml-conventions` are optional templates
   `/bluewright:make-artifact` loads on request, rather than being tied to a specific
   removed command.
+- The version hook (`hooks/check-workspace-version.py`) now exempts `/bluewright:migrate`
+  alongside `/bluewright:init`, and names the command in its messages.
 
 ### Removed
 
@@ -76,6 +84,69 @@ version bump this section will carry when it's released as `2.0.0`.
 - **Agents**: `requirements-analyst`, `system-surveyor`, `option-scout`, `doc-builder` —
   they existed only to serve the removed commands. `impact-assessor` (used by
   `/bluewright:sync`) stays.
+- **`2.0.0`'s altitude/parking mechanism**: `/bluewright:groom`, the `item-triage` skill,
+  the `Level` field, and the `Active`/`Parked`/`Closed` question/TODO sections. That release
+  solved the same problem this one does — an investigation accumulating more questions and
+  TODOs than anyone could act on — by classifying and hiding items after the fact. This
+  release solves it earlier instead, at capture time, via `question-todo-triage`'s guided
+  conversation, and removes the after-the-fact machinery rather than running both. Nothing
+  from a `2.0.0` workspace is lost: `/bluewright:migrate` folds `Active` and `Parked` entries
+  back into the flat list.
+
+## [2.0.0] — 2026-08-07
+
+**This release changes files on disk and requires a migration.** Run
+`/bluewright:migrate` in each existing workspace; every other `/bluewright:*` command is
+blocked until you do (the version hook enforces this, and exempts `migrate` itself so it
+stays reachable). The migration preserves every `Q-###` and `T-###` — nothing is renumbered
+or deleted.
+
+### Added
+
+- **Altitude** — every question and TODO now carries a `Level` (`frame`, `options`,
+  `design`, `build`): the earliest phase at which answering it changes anything. Items at or
+  above the investigation's current phase are active; the rest are parked. Parking defers,
+  it never discards — `/bluewright:design` promotes the `design`-level items when it runs
+  and drafts tickets from the `build`-level ones. Defined in
+  [`docs/spec.md`](docs/spec.md) § Altitude.
+- **`bluewright:item-triage` skill** — the single place that defines how an item earns a
+  level, how it is deduplicated against what already exists, when several items are rolled
+  up into one, and why reports count parked items instead of listing them. Every command
+  that writes `questions.md` or `todo.md` loads it.
+- **`/bluewright:groom`** — consolidates one investigation on demand: re-levels
+  automatically, then proposes merges in batches for your confirmation. Nothing is deleted;
+  absorbed entries move to `Closed` with `Status: merged`.
+- **`/bluewright:migrate`** — converts a whole workspace to the installed plugin's format,
+  runs the groom pass per investigation, and records the new version in `workspace.yml`.
+  Requires a clean git tree, and never commits.
+
+### Changed
+
+- **Workspace format (breaking)** — `questions.md` now has `Active` / `Parked` / `Closed`
+  sections with entries at `###`, a `Level:` field, and an accumulating `**Evidence:**`
+  block; `Status` gains `parked` and `merged`. `todo.md` gains a `Parked` section, and items
+  carry `(level: …)` in place of the old `(phase: …)` suffix.
+- **Writers stop appending one-for-one.** `/bluewright:capture` deduplicates before
+  allocating an ID — an existing question gains a dated evidence line instead of a twin —
+  and levels each item from its content rather than asking. `/bluewright:brief` clusters the
+  requirements analyst's conflicts, ambiguities, and gaps by the decision each bears on: one
+  question per decision, not one per finding. `/bluewright:options`, `/bluewright:spike`,
+  `/bluewright:sync`, `/bluewright:new`, and the `decision-entry` skill do the same.
+- **`requirements-analyst`** groups its findings by decision and returns a `level` on each;
+  **`impact-assessor`** returns a `level` on each hit.
+- **`/bluewright:status`** renders active items only, summarises parked ones as counts by
+  level, and flags an active list that has outgrown a glance — pointing at
+  `/bluewright:groom`. Still strictly read-only.
+- **`/bluewright:design`** promotes parked `design`-level items into the active set before
+  writing, and sources ticket material from the `build`-level ones.
+- The version hook (`hooks/check-workspace-version.py`) now exempts `/bluewright:migrate`
+  alongside `/bluewright:init`, and names the command in its messages.
+
+### Fixed
+
+- Questions and TODOs no longer grow without bound. Previously eight writers appended to
+  these two files with no altitude test, no deduplication, and no retirement rule, so a few
+  dozen captures could bury an investigation in fine-grained items it had no way to act on.
 
 ## [1.0.0] — 2026-08-06
 
@@ -99,5 +170,6 @@ First release.
 - **Docs** — the [user manual](docs/manual.html) and the
   [workspace specification](docs/spec.md).
 
-[Unreleased]: https://github.com/valeriy-maslov/bluewright/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/valeriy-maslov/bluewright/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/valeriy-maslov/bluewright/compare/v1.0.0...v2.0.0
 [1.0.0]: https://github.com/valeriy-maslov/bluewright/releases/tag/v1.0.0
