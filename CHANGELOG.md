@@ -11,8 +11,9 @@ explicitly when a release changes anything on disk.
 
 ## [Unreleased]
 
-**This release changes the on-disk workspace format** — see below. Requires the major
-version bump this section will carry when it's released as `3.0.0`. It also replaces the
+## [3.0.0] — 2026-08-17
+
+**This release changes the on-disk workspace format.** It also replaces the
 altitude/parking mechanism `2.0.0` shipped days earlier with a different answer to the same
 problem — see the note under Removed.
 
@@ -170,6 +171,7 @@ First release.
 - **Docs** — the [user manual](docs/manual.html) and the
   [workspace specification](docs/spec.md).
 
-[Unreleased]: https://github.com/valeriy-maslov/bluewright/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/valeriy-maslov/bluewright/compare/v3.0.0...HEAD
+[3.0.0]: https://github.com/valeriy-maslov/bluewright/compare/v2.0.0...v3.0.0
 [2.0.0]: https://github.com/valeriy-maslov/bluewright/compare/v1.0.0...v2.0.0
 [1.0.0]: https://github.com/valeriy-maslov/bluewright/releases/tag/v1.0.0
