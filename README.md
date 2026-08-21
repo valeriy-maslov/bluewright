@@ -18,6 +18,24 @@ own.
 
 Restart Claude Code (or start a new session) so the commands, agents, and skills load.
 
+## Update
+
+```
+/plugin marketplace update bluewright
+/plugin update bluewright@bluewright
+```
+
+The first command refreshes the marketplace listing from this repository; the second
+installs the newer version if one is available. Restart Claude Code (or start a new
+session) afterward, same as a fresh install. Check what's currently installed with
+`/plugin list`.
+
+Updates are version-gated: `.claude-plugin/plugin.json` pins an explicit `version`, and
+`/plugin update` is a no-op until that number changes upstream — see
+[`CHANGELOG.md`](CHANGELOG.md) for what changed in each release. If the release is a major
+version bump, run `/bluewright:migrate` once per existing workspace afterward; see
+Versioning below.
+
 ## Getting started
 
 ```
