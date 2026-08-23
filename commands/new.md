@@ -23,9 +23,13 @@ Requested slug: `$ARGUMENTS`
    message for:
    - title (one line) and the goal — what question must this investigation
      answer in the end;
-   - Jira epic / driving ticket (if any);
-   - related Confluence pages (if any);
-   - repos or systems to watch beyond the workspace defaults.
+   - driving ticket, epic, or related docs/wiki pages (if any) — whatever
+     tracker or wiki the team uses; record each as free text in `links`,
+     e.g. "Jira epic: CORE-123", "Design doc: <url>";
+   - repos or systems to watch beyond the workspace defaults — turn each
+     into a watchlist entry per the spec's shape (`type: repo` for a local
+     clone, `type: external` with a free-text `label`/`query` for anything
+     else).
    Everything except the title is optional. These are free-form answers —
    do NOT use AskUserQuestion for them (it requires 2–4 predefined options
    per question and rejects the call otherwise); just ask in prose. Reserve

@@ -68,14 +68,12 @@ understand its contents.
 
 ```yaml
 name: acme-platform             # short workspace name
-bluewright: "3.0.0"            # plugin version that created / last migrated
+bluewright: "4.0.0"            # plugin version that created / last migrated
                                 #   this workspace; used to detect breaking
                                 #   format changes and drive future migrations
 team: ""                        # optional: owning team/product
 created: 2026-08-06
 defaults:                       # inherited by every investigation
-  jira_project_keys: []         # e.g. [CORE, API]
-  confluence_space: ""          # e.g. ENG
   watchlist: []                 # watchlist entries (see shape below)
 ```
 
@@ -83,18 +81,24 @@ defaults:                       # inherited by every investigation
 
 Used in `workspace.yml` defaults and per-investigation. An investigation's
 effective watchlist is the workspace defaults plus its own entries.
+Bluewright bundles no integration with any specific issue tracker, wiki, or
+other external tool — `external` entries are opaque to it: `label` and
+`query` are free text, handed as-is to whatever MCP tool `/bluewright:sync`
+finds that plausibly serves them, and printed back verbatim in reports. See
+`commands/sync.md` for how that match is made.
 
 ```yaml
-- type: repo                    # repo | jira | confluence
+- type: repo                    # repo | external
   path: ~/src/some-service      # repo: local clone to inspect (git log/diff)
   branch: main                  # repo: branch to track (default main)
   note: "owns the ledger API"   # why this is watched (always recommended)
 
-- type: jira
-  jql: "project = CORE AND component = payments"
-
-- type: confluence
-  page_id: "123456"
+- type: external
+  label: "Jira: CORE payments"  # free text — human-readable, echoed in reports
+  query: "project = CORE AND component = payments"  # free text; whatever
+                                 #   syntax the matched tool expects (a JQL
+                                 #   filter, a Linear query, a page ID, a URL, ...)
+  note: "why this is watched"
 ```
 
 ## investigation.yml
@@ -107,9 +111,8 @@ status: active                  # active | closed — set by the user (directly,
                                  # says the investigation is done); no command
                                  # transitions it automatically
 created: 2026-08-06
-links:
-  jira_epic: ""                 # issue key or URL
-  confluence: []                # related page URLs/ids
+links: []                       # free-text refs, one per line, e.g.
+                                 #   "Jira epic: CORE-123", "Design doc: <url>"
 watchlist: []                   # entries specific to this investigation
 sync:
   last_run: null                # ISO timestamp, written only by /sync
@@ -198,9 +201,9 @@ by `/sync`. Investigation-scoped only — there is no global sync-log.
 
 ## 2026-08-06T14:30:00Z
 - repo ledger-service: 4 commits (3 relevant)
-- jira "project = CORE...": 2 updated issues
+- external "Jira: CORE payments": 2 updated issues
 - impact: D-004 weakened → Q-012 raised
-- quiet: confluence 123456
+- quiet: external "Eng wiki: payments page"
 ```
 
 ## KNOWLEDGE.md
@@ -279,6 +282,31 @@ release removes (see `CHANGELOG.md`). A `1.x` workspace's `questions.md`/
 Nothing from a `2.0.0` workspace is lost in this flattening — every ID,
 every piece of evidence, every closed/merged entry survives; only the
 altitude bookkeeping stops being load-bearing.
+
+## Migrating to 4.x
+
+`4.x` replaces the hardcoded `jira`/`confluence` watchlist types and named
+`jira_project_keys`/`confluence_space`/`jira_epic`/`confluence` fields with
+the generic `external` type and free-text `links` (see § Watchlist entry
+shape and § investigation.yml above) — Bluewright bundles no
+tool-specific integration, so nothing in the schema should name one. This
+mapping applies on top of whatever `3.x` migration already ran (a `1.x` or
+`2.0.0` source needs both):
+
+| `<4.0.0` | 4.x |
+|---|---|
+| `workspace.yml`: `defaults.jira_project_keys: [X, Y, ...]` | one `external` entry per key, appended to `defaults.watchlist`: `{type: external, label: "Jira: X", query: "project = X", note: "migrated from jira_project_keys"}` |
+| `workspace.yml`: `defaults.confluence_space: "SPACE"` | one `external` entry appended to `defaults.watchlist`: `{type: external, label: "Confluence: SPACE", query: "space = SPACE", note: "migrated from confluence_space"}` |
+| watchlist `type: jira`, `jql: "..."` | `type: external`, `label: "Jira: <jql, truncated if long>"`, `query: "<the jql, unchanged>"` |
+| watchlist `type: confluence`, `page_id: "..."` | `type: external`, `label: "Confluence: <page_id>"`, `query: "<the page_id, unchanged>"` |
+| `investigation.yml`: `links.jira_epic: "X"` | appended to `links: []` as `"Jira epic: X"` |
+| `investigation.yml`: `links.confluence: [...]` | each entry appended to `links: []` as `"Confluence: <entry>"` |
+
+Empty fields (`jira_project_keys: []`, `confluence_space: ""`,
+`links.jira_epic: ""`, `links.confluence: []`) produce no new entries —
+there is nothing to migrate. Nothing is deleted: every key, space, epic
+reference, and page reference from the old fields survives as a
+`watchlist`/`links` entry; only the field names and type enum change.
 
 ## Conventions
 

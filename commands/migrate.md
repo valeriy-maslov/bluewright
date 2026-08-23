@@ -34,6 +34,9 @@ Target: `$ARGUMENTS`
    - Note whether the source is `2.0.0` specifically — it needs the extra
      `questions.md`/`todo.md` flattening in step 6; a plain `1.x` source
      doesn't.
+   - Note whether the source predates `4.0.0` — it needs the
+     `jira`/`confluence` → generic `external`/`links` conversion in steps 5
+     and 6; a source already at `4.0.0`+ doesn't.
 4. **Survey what needs to change**, without writing anything yet:
    - is `global/` missing?
    - for each `<slug>/investigation.yml`: does it still have a `phase:`
@@ -43,6 +46,10 @@ Target: `$ARGUMENTS`
    - if the source is `2.0.0`: which `questions.md`/`todo.md` files still
      have `## Active`/`## Parked`/`## Closed` section headers or `Level:`
      fields?
+   - if the source predates `4.0.0`: does `workspace.yml` still have
+     `defaults.jira_project_keys`/`defaults.confluence_space`? Does any
+     `investigation.yml` still have `links.jira_epic`/`links.confluence`,
+     or watchlist entries with `type: jira`/`type: confluence`?
    - are there `spikes/` folders? (these are left alone — see step 5 — but
      worth naming in the summary so the user isn't surprised later.)
    Present this survey and ask for confirmation before changing anything —
@@ -51,6 +58,12 @@ Target: `$ARGUMENTS`
    - if `global/` is missing, scaffold it exactly as `/bluewright:init`
      does: `decisions.md`, `questions.md`, `todo.md` seeded with headers
      and no entries, `inputs/` and `artifacts/` with `.gitkeep`.
+   - if the source predates `4.0.0` and `workspace.yml` still has
+     `defaults.jira_project_keys`/`defaults.confluence_space`, convert them
+     per the spec's "Migrating to 4.x" table: each project key becomes an
+     `external` entry appended to `defaults.watchlist`, the Confluence space
+     (if set) becomes one more, then remove the two old fields. Skip fields
+     that are already empty — nothing to convert.
 6. **Migrate each investigation:**
    - `investigation.yml` — replace a `phase: <value>` line with
      `status: <value>` per the spec's mapping table, touching nothing else
@@ -72,22 +85,32 @@ Target: `$ARGUMENTS`
    - `spikes/<name>/` folders are **not** touched — they're no longer part
      of the managed layout, but their `SPIKE.md`/`VERDICT.md`/code are real
      history. Leave them exactly where they are.
+   - if the source predates `4.0.0`, convert per the spec's "Migrating to
+     4.x" table: `links.jira_epic` and each entry of `links.confluence`
+     become free-text strings appended to `links: []`; each watchlist entry
+     with `type: jira`/`type: confluence` becomes `type: external` with a
+     `label`/`query` derived from its `jql`/`page_id`. Skip fields that are
+     already empty or absent.
 7. **Bump the version.** Set `workspace.yml`'s `bluewright` field to the
    installed plugin version. This and `/bluewright:init` are the only
    commands allowed to write this field.
 8. **Report** one screen: what was scaffolded, which investigations had
    their `phase`/`outputs/` migrated (with the phase→status mapping used
    for each), whether `questions.md`/`todo.md` needed flattening and what
-   changed, any `spikes/` folders left as unmanaged history, and the new
-   `bluewright` version on record. Close by reminding the user this command
-   never commits — review with `git diff`, commit when satisfied.
+   changed, which `jira`/`confluence` fields or watchlist entries were
+   converted to generic `external`/`links` entries and to what, any
+   `spikes/` folders left as unmanaged history, and the new `bluewright`
+   version on record. Close by reminding the user this command never
+   commits — review with `git diff`, commit when satisfied.
 
 ## Rules
 
 - **Additive and renames only. Never delete data.** No decision, question,
   or TODO entry, and no input, is ever deleted — only `investigation.yml`'s
   phase field, folder names, `questions.md`/`todo.md` section structure
-  (2.0.0 sources only), and `workspace.yml`'s version field change.
+  (2.0.0 sources only), `jira`/`confluence` fields and watchlist entry types
+  (pre-4.0.0 sources only — converted, not dropped, to `external`/`links`),
+  and `workspace.yml`'s version field change.
 - **Requires a clean git tree and never commits.** `git diff` is the
   review, `git revert`/`git reset` is the undo — never run this against a
   dirty tree, and never commit on the user's behalf.

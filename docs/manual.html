@@ -405,7 +405,7 @@
         <h2><span class="num">2</span>How it thinks — three ideas</h2>
 
         <h3>Workspace</h3>
-        <p>A <strong>workspace</strong> is a folder (and git repo) for one product or team. You can have several. It's marked by a <code>workspace.yml</code> file that stores team-wide defaults — Jira project keys, a Confluence space, systems worth watching — so each new investigation starts pre-configured. A <code>KNOWLEDGE.md</code> index at the top links every investigation.</p>
+        <p>A <strong>workspace</strong> is a folder (and git repo) for one product or team. You can have several. It's marked by a <code>workspace.yml</code> file that stores team-wide defaults — systems worth watching by default, such as an issue tracker query or a wiki space — so each new investigation starts pre-configured. A <code>KNOWLEDGE.md</code> index at the top links every investigation.</p>
 
         <h3>Global vs. investigation</h3>
         <p><code>global/</code> is the workspace's official record — decisions, questions, and TODOs true for the whole team, not just one feature. An <strong>investigation</strong> is one feature question, in its own subfolder, with the same three files scoped to just that work. Nothing in an investigation is official until you say so with <code>/bluewright:promote</code>, which copies it into <code>global/</code> and leaves the original untouched:</p>
@@ -535,7 +535,7 @@ cd ~/work/my-team
           <p class="label">Watching the outside world</p>
           <div class="cmd">
             <span class="name">/bluewright:sync</span>
-            <p class="what">Checks every watchlist entry for changes since the last run — commits in watched repos, updated Jira issues, edited Confluence pages — and answers the question that matters: <strong>which of my assumptions moved?</strong> Breaking changes raise questions against the affected decisions. Runs unattended, so you can schedule it nightly. <em class="when">Run before big steps, or on a schedule.</em></p>
+            <p class="what">Checks every watchlist entry for changes since the last run — commits in watched repos, updates from watched trackers or wikis — and answers the question that matters: <strong>which of my assumptions moved?</strong> Breaking changes raise questions against the affected decisions. Runs unattended, so you can schedule it nightly. <em class="when">Run before big steps, or on a schedule.</em></p>
           </div>
         </div>
       </section>
@@ -548,7 +548,7 @@ cd ~/work/my-team
           <span class="day">Day 1</span>
           <div class="body">
             <span class="run">/bluewright:init ~/work/platform</span>
-            <p>One-time workspace setup (skip if your team already has one). You give it the team name and Jira project key; it creates <code>workspace.yml</code>, <code>KNOWLEDGE.md</code>, and <code>global/</code>, and git-inits the folder.</p>
+            <p>One-time workspace setup (skip if your team already has one). You give it the team name and anything worth watching by default (e.g. an issue tracker project key, if that's what your team uses); it creates <code>workspace.yml</code>, <code>KNOWLEDGE.md</code>, and <code>global/</code>, and git-inits the folder.</p>
           </div>
         </div>
         <div class="ex-step">
@@ -562,7 +562,7 @@ cd ~/work/my-team
           <span class="day"></span>
           <div class="body">
             <span class="run">/bluewright:new order-webhooks</span>
-            <p>You state the goal — <em>"How do we notify subscribers of order-status changes within 60 seconds?"</em> — link the Jira epic, and put two repos on the watchlist: your <code>order-service</code> clone and the other team's <code>api-gateway</code>. Everything you said lands in <code>inputs/00-intake.md</code>.</p>
+            <p>You state the goal — <em>"How do we notify subscribers of order-status changes within 60 seconds?"</em> — link the driving epic or ticket, and put two repos on the watchlist: your <code>order-service</code> clone and the other team's <code>api-gateway</code>. Everything you said lands in <code>inputs/00-intake.md</code>.</p>
           </div>
         </div>
         <div class="ex-step">
@@ -646,7 +646,7 @@ cd ~/work/my-team
         <h2><span class="num">8</span>Staying current while others ship</h2>
         <p>The systems you design against don't wait for you. The watchlist plus <code>/sync</code> is Bluewright's answer:</p>
         <ul>
-          <li>Put anything that could move under your feet on the watchlist — a local clone of another team's repo, a Jira query, a Confluence page. Workspace-level entries apply to every investigation; each investigation can add its own.</li>
+          <li>Put anything that could move under your feet on the watchlist — a local clone of another team's repo, an issue tracker query, a wiki page. Workspace-level entries apply to every investigation; each investigation can add its own.</li>
           <li><code>/sync</code> collects what changed since last time, then judges each change against your <em>decisions</em> — not just "4 new commits" but "commit <code>abc123</code> weakens D-004, which assumed the ledger API is synchronous".</li>
           <li>It never rewrites your decisions. A broken assumption becomes a flagged question; the re-ruling is yours.</li>
         </ul>
