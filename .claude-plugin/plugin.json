@@ -1,6 +1,6 @@
 {
   "name": "bluewright",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "description": "Capture-first investigation workspaces: an official global record plus per-investigation capture, interactive analysis, and on-demand artifacts",
   "author": {
     "name": "Valeriy Maslov",

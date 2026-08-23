@@ -49,10 +49,12 @@ credentials for anything. No command reaches the general internet by default —
 bundled commands or agents carries `WebFetch`/`WebSearch` in its tool list.
 
 The one command that touches the network is `/bluewright:sync`, and only for watchlist
-entries you configured. Repository entries are local clones it inspects with git. Jira and
-Confluence entries use MCP tools **if you have configured those servers yourself**; if you
-have not, the entry is marked `skipped: no Jira access` and nothing is contacted. It runs
-only because you invoked it (or scheduled it).
+entries you configured. Repository entries are local clones it inspects with git. `external`
+entries (an issue tracker query, a wiki page, or anything else you point it at) use
+whichever MCP tools **you have connected yourself** that plausibly match the entry; Bluewright
+bundles no integration with any specific tool. If nothing matches, the entry is marked
+`skipped: no tool found` and nothing is contacted. It runs only because you invoked it (or
+scheduled it).
 
 ## What you put in
 

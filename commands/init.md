@@ -26,12 +26,18 @@ Target path: `$ARGUMENTS`
      files is not; never overwrite an existing file).
 3. **Interview, briefly — in plain text.** Ask in one conversational
    message for: workspace name (default: folder name), team/product name,
-   default Jira project keys, default Confluence space. These are free-form
-   answers — do NOT use AskUserQuestion for them (it requires 2–4 predefined
-   options per question and rejects the call otherwise); just ask in prose.
-   Reserve AskUserQuestion for genuine multiple-choice moments only. Every
-   answer is optional — write empty defaults for anything skipped; they can
-   be edited in `workspace.yml` later.
+   anything to watch by default across every investigation — an issue
+   tracker query, a wiki space, a repo, whatever the team actually uses.
+   Turn each into a `defaults.watchlist` entry per the spec's watchlist
+   entry shape (`type: repo` for a local clone, `type: external` with a
+   free-text `label`/`query` for anything else — Bluewright has no
+   built-in integration with any specific tool, so don't assume one).
+   These are free-form answers — do NOT use AskUserQuestion for them (it
+   requires 2–4 predefined options per question and rejects the call
+   otherwise); just ask in prose. Reserve AskUserQuestion for genuine
+   multiple-choice moments only. Every answer is optional — write an empty
+   `watchlist: []` for anything skipped; entries can be added to
+   `workspace.yml` later.
 4. **Create** the folder (if needed), then `workspace.yml` and `KNOWLEDGE.md`
    per the spec, with today's date and the interview answers. Set the
    `bluewright` field to the installed plugin version — read it from

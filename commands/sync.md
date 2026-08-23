@@ -25,12 +25,16 @@ Argument: `$ARGUMENTS`
      on failure note it and use local state), then
      `git log <branch> --since=<last_run> --oneline --name-only` (prefer the
      remote-tracking ref when ahead). Collect hash, subject, changed files.
-   - `jira` — if Jira MCP tools are available in this session, run the
-     entry's JQL narrowed with `updated >= <last_run>`; collect key, summary,
-     and what changed. Otherwise mark the entry `skipped: no Jira access`.
-   - `confluence` — if Confluence MCP tools are available, compare the page
-     version/last-modified against `last_run`; collect title and version
-     note. Otherwise mark `skipped: no Confluence access`.
+   - `external` — use `ToolSearch` to look for an MCP tool that plausibly
+     serves this entry's `label`/`query` (e.g. an issue-search, page-fetch,
+     or query tool from a connected server whose name or description echoes
+     the label). If exactly one plausible match exists, run it with the
+     entry's `query`, narrowed to changes since `last_run` in whatever way
+     that tool supports; collect item id/title and what changed. If nothing
+     matches, mark the entry `skipped: no tool found for "<label>"`. If more
+     than one tool looks equally plausible, don't guess — mark it
+     `skipped: ambiguous match for "<label>"` instead of querying the wrong
+     system.
    Never fail the whole sync over one entry — record the error and move on.
 3. **Short-circuit if quiet.** No changes anywhere → append a one-line
    "quiet" section to `sync-log.md`, update `sync.last_run` to now

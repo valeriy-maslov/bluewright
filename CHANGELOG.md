@@ -11,6 +11,28 @@ explicitly when a release changes anything on disk.
 
 ## [Unreleased]
 
+**This release changes the on-disk workspace format.**
+
+### Changed
+
+- Watchlist entries and links are now tool-agnostic. `workspace.yml`'s
+  `defaults.jira_project_keys`/`defaults.confluence_space` and
+  `investigation.yml`'s `links.jira_epic`/`links.confluence` are replaced by
+  a generic `watchlist` (`type: external` with free-text `label`/`query`)
+  and a generic `links: []` list of free-text references — Bluewright
+  bundles no integration with any specific issue tracker or wiki.
+- `/bluewright:sync` no longer special-cases Jira/Confluence MCP tools for
+  external entries; it searches available MCP tools at run time for one
+  that plausibly matches an entry's `label`/`query`, and skips the entry
+  with a reason if none is found.
+- `/bluewright:migrate` converts pre-`4.0.0` `jira`/`confluence` fields and
+  watchlist entries to the generic shape — additive, nothing is deleted.
+
+### Removed
+
+- The hardcoded `jira`/`confluence` watchlist entry types (`jql`, `page_id`
+  fields) — superseded by the generic `external` type above.
+
 ## [3.0.0] — 2026-08-17
 
 **This release changes the on-disk workspace format.** It also replaces the
