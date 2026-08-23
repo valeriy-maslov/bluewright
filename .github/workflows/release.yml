@@ -3,7 +3,11 @@ name: Release
 # Publishes a GitHub release when a new version appears at the top of CHANGELOG.md.
 # The changelog is the trigger and the source of the release notes; the tag is vX.Y.Z.
 # Re-running on an already-released version is a no-op, so unrelated changelog edits
-# (a typo fix, a line added under Unreleased) are safe.
+# (a typo fix, a line added under Unreleased) are safe. So is bumping plugin.json ahead
+# of cutting the release, per CONTRIBUTING.md's documented flow (bump the version in the
+# feature PR, rename Unreleased separately when actually releasing) — the manifest/
+# changelog version match is only checked once we're about to publish a release that
+# hasn't been published yet, never against an already-tagged topmost section.
 
 on:
   push:
@@ -30,13 +34,11 @@ jobs:
         id: entry
         run: |
           python3 <<'PY'
-          import json
           import os
           import re
           import sys
 
           CHANGELOG = "CHANGELOG.md"
-          MANIFEST = ".claude-plugin/plugin.json"
 
           HEADING = re.compile(r"^##\s+\[([^\]]+)\]")
           LINK_DEF = re.compile(r"^\[[^\]]+\]:\s")
@@ -78,15 +80,6 @@ jobs:
           if not SEMVER.match(version):
               fail(f"Changelog heading '[{version}]' is not a semantic version.")
 
-          with open(MANIFEST, encoding="utf-8") as fh:
-              manifest_version = json.load(fh).get("version")
-
-          if manifest_version != version:
-              fail(
-                  f"Version mismatch: {CHANGELOG} tops out at {version}, but {MANIFEST} "
-                  f"says {manifest_version}. Bump both in the same commit."
-              )
-
           notes = "\n".join(body).strip()
           if not notes:
               fail(f"The [{version}] section is empty — a release needs notes.")
@@ -125,6 +118,35 @@ jobs:
           else
             echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
+
+      # Only checked once we're about to publish a version that isn't live yet — an
+      # already-released topmost section is a no-op above regardless of what plugin.json
+      # currently says, so bumping it ahead of the changelog cut (the documented flow for
+      # ordinary feature PRs) never fails this job.
+      - name: Verify the manifest matches the version being released
+        if: steps.check.outputs.exists == 'false'
+        env:
+          VERSION: ${{ steps.entry.outputs.version }}
+        run: |
+          python3 <<'PY'
+          import json
+          import os
+          import sys
+
+          MANIFEST = ".claude-plugin/plugin.json"
+          version = os.environ["VERSION"]
+
+          with open(MANIFEST, encoding="utf-8") as fh:
+              manifest_version = json.load(fh).get("version")
+
+          if manifest_version != version:
+              print(
+                  f"::error file={MANIFEST}::Version mismatch: CHANGELOG.md tops out at "
+                  f"{version}, but {MANIFEST} says {manifest_version}. Bump both in the "
+                  f"same commit that cuts the release."
+              )
+              sys.exit(1)
+          PY
 
       - name: Create the release
         if: steps.check.outputs.exists == 'false'
