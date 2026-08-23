@@ -40,7 +40,8 @@ Ask: `$ARGUMENTS`
    has no fixed template — write it to fit the ask.
 5. **Write the artifact** to `<investigation>/artifacts/<kebab-name>.<ext>`
    (or `global/artifacts/` for a global-only run). Never silently overwrite
-   an existing artifact with the same name — ask, or pick a distinct name.
+   an existing artifact with the same name — a bounded choice, so use
+   `AskUserQuestion` (`Overwrite` / `Use a different name`).
 6. **Trace what you can, flag what you can't.** Every non-trivial claim
    should point back to a `D-###`/`Q-###`/`T-###` or an `inputs/` source
    where the record actually supports it. Where it's silent, say so as an

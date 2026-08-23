@@ -16,14 +16,16 @@ Target path: `$ARGUMENTS`
 
 1. **Resolve the target.** Use the argument as the workspace path (expand `~`,
    resolve relative to cwd). If no argument was given, propose the current
-   working directory and ask for confirmation before using it.
+   working directory and confirm before using it — a bounded yes/no, so use
+   `AskUserQuestion` (`Use this directory` / `Choose a different path`).
 2. **Guard.**
    - If the target (or any of its ancestors) already contains a
      `workspace.yml`, stop: nested workspaces are not allowed. Report which
      workspace was found and where.
-   - If the target exists and is non-empty, list what is there and ask before
-     proceeding (initializing inside an existing folder is fine — overwriting
-     files is not; never overwrite an existing file).
+   - If the target exists and is non-empty, list what is there and confirm
+     before proceeding (initializing inside an existing folder is fine —
+     overwriting files is not; never overwrite an existing file) — another
+     bounded yes/no, so use `AskUserQuestion` (`Proceed anyway` / `Cancel`).
 3. **Interview, briefly — in plain text.** Ask in one conversational
    message for: workspace name (default: folder name), team/product name,
    anything to watch by default across every investigation — an issue

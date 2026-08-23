@@ -11,6 +11,23 @@ explicitly when a release changes anything on disk.
 
 ## [Unreleased]
 
+## [4.0.1] — 2026-08-23
+
+### Fixed
+
+- Several commands and the `question-todo-triage` skill asked bounded
+  yes/no or pick-one-of-a-few questions as plain prose instead of using
+  `AskUserQuestion`, contradicting the convention the plugin already
+  documents for itself. `/bluewright:init` (confirming the target
+  directory), `/bluewright:migrate` (confirming when there's no git
+  safety net), `/bluewright:sync` (confirming a future `last_run`),
+  `/bluewright:make-artifact` (confirming an artifact overwrite),
+  `/bluewright:promote` (confirming an unresolved item), and
+  `question-todo-triage`'s dedup and candidate-review steps now use
+  `AskUserQuestion` for these bounded choices, relying on its built-in
+  "Other" option for free-text rewording. Open-ended interviews and
+  judgment calls are unchanged and still use prose.
+
 ## [4.0.0] — 2026-08-23
 
 **This release changes the on-disk workspace format.**
@@ -195,7 +212,8 @@ First release.
 - **Docs** — the [user manual](docs/manual.html) and the
   [workspace specification](docs/spec.md).
 
-[Unreleased]: https://github.com/valeriy-maslov/bluewright/compare/v4.0.0...HEAD
+[Unreleased]: https://github.com/valeriy-maslov/bluewright/compare/v4.0.1...HEAD
+[4.0.1]: https://github.com/valeriy-maslov/bluewright/compare/v4.0.0...v4.0.1
 [4.0.0]: https://github.com/valeriy-maslov/bluewright/compare/v3.0.0...v4.0.0
 [3.0.0]: https://github.com/valeriy-maslov/bluewright/compare/v2.0.0...v3.0.0
 [2.0.0]: https://github.com/valeriy-maslov/bluewright/compare/v1.0.0...v2.0.0

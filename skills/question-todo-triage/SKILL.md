@@ -32,26 +32,33 @@ not to decide for them.
    near-term action someone could start today. Merge near-duplicate
    phrasings of the same underlying unknown before candidates are even
    presented; never present five wordings of one question.
-2. **Cap what you show at once.** Roughly five candidates per round. If the
-   material implies more, name the theme ("there's a cluster of unknowns
-   about the ledger API") and ask which of them matter enough to track,
-   rather than listing everything you can infer.
+2. **Cap what you show at once.** Up to four candidates per round —
+   `AskUserQuestion` (used in steps 3-4 below) caps at four questions per
+   call, so one round maps to exactly one call. If the material implies
+   more, name the theme ("there's a cluster of unknowns about the ledger
+   API") and ask in prose which of them matter enough to track at all —
+   that filtering judgment is open-ended, not a fixed set of options, so it
+   stays conversational even though the rest of this procedure doesn't.
 3. **Dedup before presenting each candidate.**
    - Always check `targetPath`'s own `questions.md`/`todo.md` for an
      existing equivalent.
    - When `crossCheckGlobal` is true, also check `global/questions.md` and
      `global/todo.md` — global is the authoritative tier, so a near-match
      there matters more than one in another investigation.
-   - On a match, don't create a new ID. Surface it instead: "this looks
-     like it's the same as Q-00X (global) — same question, or genuinely
-     different?" Let the user decide reuse, a reworded new entry, or
-     dropping it.
-4. **Present candidates conversationally, in prose** — not
-   `AskUserQuestion` (it forces 2–4 predefined options and doesn't fit an
-   open-ended "does this matter?" judgment call). For each candidate, give
-   the phrasing, one line on why it seemed to matter, and its dedup match
-   if any. Let the user, per candidate: accept as written, edit the
-   wording, merge it into an existing ID, or drop it.
+   - On a match, don't create a new ID yet — this is a bounded choice, so
+     ask via `AskUserQuestion` with options `Reuse Q-00X` (or `T-00X`) and
+     `Drop it`. Don't add a third predefined option for "reword it as a new
+     entry" — the tool's automatic "Other" field already covers that: if
+     the user types a phrasing there instead of picking an option, treat
+     that text as the confirmed wording for a genuinely new, separate
+     entry, not as a rejection of the question.
+4. **Present the remaining (non-matched) candidates via `AskUserQuestion`**,
+   batched per the four-per-round cap above. For each candidate, put the
+   phrasing and one line on why it seemed to matter into the question text,
+   with `Accept as written` and `Drop it` as the fixed options — again rely
+   on the automatic "Other" field for "accept, but with this wording
+   instead." (A candidate with a dedup match was already resolved in step 3
+   and doesn't need to be re-presented here.)
 5. **Write only what's confirmed.** Allocate the next ID in the target file
    at write time, per the spec's sequential/never-reused rule — never
    pre-allocate IDs for candidates that might be dropped.
