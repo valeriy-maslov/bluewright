@@ -11,6 +11,8 @@ explicitly when a release changes anything on disk.
 
 ## [Unreleased]
 
+## [4.0.0] — 2026-08-23
+
 **This release changes the on-disk workspace format.**
 
 ### Changed
@@ -193,7 +195,8 @@ First release.
 - **Docs** — the [user manual](docs/manual.html) and the
   [workspace specification](docs/spec.md).
 
-[Unreleased]: https://github.com/valeriy-maslov/bluewright/compare/v3.0.0...HEAD
+[Unreleased]: https://github.com/valeriy-maslov/bluewright/compare/v4.0.0...HEAD
+[4.0.0]: https://github.com/valeriy-maslov/bluewright/compare/v3.0.0...v4.0.0
 [3.0.0]: https://github.com/valeriy-maslov/bluewright/compare/v2.0.0...v3.0.0
 [2.0.0]: https://github.com/valeriy-maslov/bluewright/compare/v1.0.0...v2.0.0
 [1.0.0]: https://github.com/valeriy-maslov/bluewright/releases/tag/v1.0.0
