@@ -24,9 +24,11 @@ Argument: `$ARGUMENTS`
    - **accepted** decisions and **answered** questions are natural
      candidates — they're settled;
    - open questions, unresolved TODOs, and `proposed` decisions are unusual
-     to promote — flag that explicitly and confirm before including any
-     ("Q-003 is still open — promote it as an open global question, or wait
-     until it's answered?").
+     to promote — flag that explicitly and confirm before including any. This
+     is a bounded per-candidate choice ("Q-003 is still open" →
+     `Promote now` / `Wait until answered`), so use `AskUserQuestion`;
+     batch up to 4 flagged candidates per call, running additional calls if
+     more need confirming.
 3. **Dedup each candidate against `global/`** before writing:
    - for questions/TODOs, run the `bluewright:question-todo-triage` skill's
      dedup step against `global/questions.md`/`global/todo.md` — a match

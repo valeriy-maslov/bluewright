@@ -66,6 +66,8 @@ Argument: `$ARGUMENTS`
   invariants: nothing lost, nothing silently decided.
 - Watchlist paths and queries are the boundary: touch nothing else, and
   never write inside a watched repo (no pulls, no checkouts — fetch only).
-- If `last_run` is in the future (clock skew, manual edit), say so and ask
-  before proceeding — except in non-interactive runs, where you note it in
-  `sync-log.md` and use the created date instead.
+- If `last_run` is in the future (clock skew, manual edit), say so and
+  confirm before proceeding — a bounded yes/no, so use `AskUserQuestion`
+  (`Proceed using the created date` / `Stop`) — except in non-interactive
+  runs, where you note it in `sync-log.md` and use the created date
+  instead without asking.

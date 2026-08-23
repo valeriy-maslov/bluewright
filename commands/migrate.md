@@ -24,7 +24,9 @@ Target: `$ARGUMENTS`
    workspace root; anything but empty output means stop and say so —
    uncommitted changes would mix with this command's edits and make `git
    diff` useless as a review. If the workspace isn't a git repository at
-   all, note that there is no safety net and confirm before proceeding.
+   all, note that there is no safety net and confirm before proceeding — a
+   bounded yes/no, so use `AskUserQuestion` (`Proceed without a safety net`
+   / `Cancel`).
 3. **Read versions.** Compare `workspace.yml`'s `bluewright` field (missing
    → treat as `1.0.0`) against the installed plugin version (from
    `${CLAUDE_PLUGIN_ROOT}/.claude-plugin/plugin.json`).
